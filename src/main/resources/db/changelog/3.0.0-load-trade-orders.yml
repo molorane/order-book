@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2.0.0.load-trade-orders
+      author: Mothusi Molorane
+      changes:
+        - loadData:
+            columns:
+              - column:
+                  name: price
+                  type: string
+              - column:
+                  name: quantity
+                  type: string
+              - column:
+                  name: currency_pair
+                  type: string
+              - column:
+                  name: traded_at
+                  type: string
+              - column:
+                  name: taker_side
+                  type: string
+              - column:
+                  name: sequence_id
+                  type: string
+              - column:
+                  name: id
+                  type: string
+              - column:
+                  name: quote_volume
+                  type: string
+              - column:
+                  name: status
+                  type: string
+              - column:
+                  name: order_type
+                  type: string
+              - column:
+                  name: time_in_force
+                  type: string
+              - column:
+                  name: user_id
+                  type: string
+            encoding: UTF-8
+            file: ../data/orders.csv
+            relativeToChangelogFile: true
+            separator: ','
+            tableName: trade_order
+            usePreparedStatements: true

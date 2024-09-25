@@ -1,0 +1,158 @@
+databaseChangeLog:
+  - changeSet:
+      id:  1.0.0.user-table
+      author:  Mothusi Molorane
+      changes:
+        - createTable:
+            tableName:  tbl_user
+            columns:
+              - column:
+                  name:  id
+                  type:  BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: first_name
+                  type: varchar(10)
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id:  1.0.0.user-wallet-table
+      author:  Mothusi Molorane
+      changes:
+        - createTable:
+            tableName:  user_wallet
+            columns:
+              - column:
+                  name:  id
+                  type:  BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_user_wallet_user_id
+                    references: tbl_user(id)
+                    nullable: false
+              - column:
+                  name: currency
+                  type: varchar(10)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity
+                  type: varchar(10)
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id:  1.0.0.trade-order-table
+      author:  Mothusi Molorane
+      changes:
+         - createTable:
+              tableName:  trade_order
+              columns:
+                  - column:
+                      name:  sequence_id
+                      type:  BIGINT
+                      autoIncrement: true
+                      constraints:
+                          primaryKey: true
+                  - column:
+                        name: id
+                        type: varchar(40)
+                        constraints:
+                            nullable: false
+                            unique: true
+                            uniqueConstraintName: uk_id
+                  - column:
+                      name: user_id
+                      type: BIGINT
+                      constraints:
+                        foreignKeyName: fk_trade_order_user_id
+                        references: tbl_user(id)
+                        nullable: false
+                  - column:
+                      name: taker_side
+                      type: varchar(10)
+                      constraints:
+                        nullable: false
+                  - column:
+                      name: quantity
+                      type: DECIMAL(16,8)
+                      constraints:
+                        nullable: false
+                  - column:
+                      name: price
+                      type: DECIMAL(16,8)
+                      constraints:
+                        nullable: false
+                  - column:
+                      name: quote_volume
+                      type: DECIMAL(16,8)
+                      constraints:
+                        nullable: false
+                  - column:
+                      name: currency_pair
+                      type: VARCHAR(20)
+                      constraints:
+                          nullable: false
+                  - column:
+                      name: status
+                      type: varchar(20)
+                      constraints:
+                        nullable: false
+                  - column:
+                      name: order_type
+                      type: varchar(20)
+                      constraints:
+                        nullable: false
+                  - column:
+                      name: traded_at
+                      type: TIMESTAMP
+                      defaultValueComputed: NOW()
+                      constraints:
+                        nullable: false
+                  - column:
+                      name: post_only
+                      type: boolean
+                      defaultValueBoolean: false
+                  - column:
+                      name: customer_order_id
+                      type: varchar(20)
+                  - column:
+                      name: time_in_force
+                      type: varchar(5)
+                      constraints:
+                        nullable: false
+                  - column:
+                        name: allow_margin
+                        type: boolean
+                        defaultValueBoolean: false
+                  - column:
+                        name: reduce_only
+                        type: boolean
+                        defaultValueBoolean: false
+  - changeSet:
+      id: 1.0.0-add-check-constraint-on-taker-side
+      author: Mothusi Molorane
+      changes:
+        - sql:
+            dbms: 'all'
+            sql: ALTER TABLE trade_order ADD CONSTRAINT CHK_TakerSide CHECK (taker_side IN ('SELL', 'BUY'));
+  - changeSet:
+      id: 1.0.0-add-check-constraint-on-status
+      author: Mothusi Molorane
+      changes:
+        - sql:
+            dbms: 'all'
+            sql: ALTER TABLE trade_order ADD CONSTRAINT CHK_Status CHECK (status IN ('PLACED', 'CANCELED', 'FILLED', 'REJECTED', 'PARTIALLY_FILLED'));
+  - changeSet:
+      id: 1.0.0-add-check-constraint-on-order-type
+      author: Mothusi Molorane
+      changes:
+        - sql:
+            dbms: 'all'
+            sql: ALTER TABLE trade_order ADD CONSTRAINT CHK_OrderType CHECK (order_type IN ('LIMIT_ORDER', 'MARKET_ORDER'));

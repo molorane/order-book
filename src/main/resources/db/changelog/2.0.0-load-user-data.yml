@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: 4.0.0.load-user-data
+      author: Mothusi Molorane
+      changes:
+        - loadData:
+            columns:
+              - column:
+                  name: id
+                  type: string
+              - column:
+                  name: first_name
+                  type: string
+            encoding: UTF-8
+            file: ../data/users.csv
+            relativeToChangelogFile: true
+            separator: ','
+            tableName: tbl_user
+            usePreparedStatements: true
+  - changeSet:
+      id: 4.0.0.load-user-wallet
+      author: Mothusi Molorane
+      changes:
+        - loadData:
+            columns:
+              - column:
+                  name: user_id
+                  type: string
+              - column:
+                  name: currency
+                  type: string
+              - column:
+                  name: quantity
+                  type: string
+            encoding: UTF-8
+            file: ../data/user-wallets.csv
+            relativeToChangelogFile: true
+            separator: ','
+            tableName: user_wallet
+            usePreparedStatements: true

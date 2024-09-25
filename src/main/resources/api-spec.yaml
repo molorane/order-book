@@ -1,0 +1,288 @@
+openapi: 3.0.1
+info:
+  title: Order Book API
+  description: This is an api-spec for `OrderBookApi`.
+  termsOfService: http://swagger.io/terms/
+  contact:
+    name: Mothusi Molorane
+    email: molorane.mothusi@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://springdoc.org
+  version: 0.0.1
+servers:
+  - url: http://loclahost:8080
+    description: Generated server url
+tags:
+  - name: Trade
+    description: Api operations for orders
+paths:
+
+  # Trade
+  /v1/{currencyPair}/tradehistory:
+    get:
+      tags:
+        - Trade
+      operationId: trade-history
+      summary: trade history
+      parameters:
+        - name: currencyPair
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/CurrencyPair'
+        - name: skip
+          in: query
+          required: false
+          description: Skip number of items from the list
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          required: false
+          description: Limit the number of items returned. Max is 100
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: startTime
+          in: query
+          required: false
+          description: Include only trades after this ISO 8601 start time
+          schema:
+            type: string
+            format: date-time
+        - name: endTime
+          in: query
+          required: false
+          description: Include only transactions before this ISO 8601 end time
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: OK
+          content:
+            'application/json':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TradeOrder'
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/TradeOrder'
+  /v1/{currencyPair}/orderbook:
+    get:
+      tags:
+        - Trade
+      operationId: order-book
+      summary: order book
+      parameters:
+        - name: currencyPair
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/CurrencyPair'
+      responses:
+        '200':
+          description: OK
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/OrderBook'
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/OrderBook'
+  /v1/orders/limit:
+    post:
+      tags:
+        - Trade
+      summary: Place a limit order
+      description: Submit a limit order
+      operationId: place-limit-order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequest'
+        required: true
+      responses:
+        '200':
+          description: Place a limit order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+
+# SCHEMAS
+components:
+  schemas:
+    Side:
+      type: string
+      enum:
+        - SELL
+        - BUY
+    CurrencyPair:
+      type: string
+      enum:
+        - XRPZAR
+        - BTCZAR
+        - ETHZAR
+        - SOLZAR
+        - SHIBZAR
+        - BTCUSDT
+        - BTCUSDC
+    Status:
+      type: string
+      default: PLACED
+      enum:
+        - PLACED
+        - CANCELED
+        - FILLED
+        - REJECTED
+        - PARTIALLY_FILLED
+    TimeInForce:
+      type: string
+      default: GTC
+      enum:
+        - GTC
+        - FOK
+        - IOC
+    OrderType:
+      type: string
+      default: LIMIT_ORDER
+      enum:
+        - LIMIT_ORDER
+        - MARKET_ORDER
+    OrderRequest:
+      type: object
+      properties:
+        side:
+          $ref: '#/components/schemas/Side'
+        quantity:
+          type: number
+        price:
+          type: number
+        pair:
+          $ref: '#/components/schemas/CurrencyPair'
+        postOnly:
+          type: boolean
+          default: false
+        customerOrderId:
+          type: string
+        timeInForce:
+          $ref: '#/components/schemas/TimeInForce'
+        allowMargin:
+          type: boolean
+          default: false
+        reduceOnly:
+          type: boolean
+          default: false
+    OrderResponse:
+      type: object
+      properties:
+        sequenceId:
+          type: integer
+          format: int64
+        id:
+          type: string
+        side:
+          $ref: '#/components/schemas/Side'
+        quantity:
+          type: number
+        price:
+          type: number
+        quoteVolume:
+          type: number
+        pair:
+          $ref: '#/components/schemas/CurrencyPair'
+        status:
+          $ref: '#/components/schemas/Status'
+        orderType:
+          $ref: '#/components/schemas/OrderType'
+        tradedAt:
+          type: string
+          format: date-time
+          example: '2023-01-01T17:32:28Z'
+        postOnly:
+          type: boolean
+          default: false
+        customerOrderId:
+          type: string
+        timeInForce:
+          $ref: '#/components/schemas/TimeInForce'
+        allowMargin:
+          type: boolean
+          default: false
+        reduceOnly:
+          type: boolean
+          default: false
+    TradeOrder:
+      type: object
+      properties:
+        sequenceId:
+          type: integer
+          format: int64
+        id:
+          type: string
+        takerSide:
+          $ref: '#/components/schemas/Side'
+        quantity:
+          type: number
+        price:
+          type: number
+        quoteVolume:
+          type: number
+        currencyPair:
+          $ref: '#/components/schemas/CurrencyPair'
+        tradedAt:
+          type: string
+          format: date-time
+          example: '2023-01-01T17:32:28Z'
+    Order:
+      type: object
+      properties:
+        side:
+          $ref: '#/components/schemas/Side'
+        quantity:
+          type: number
+        price:
+          type: number
+        currencyPair:
+          $ref: '#/components/schemas/CurrencyPair'
+        orderCount:
+          type: integer
+          format: int32
+    OrderBook:
+      type: object
+      properties:
+        Asks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+        Bids:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+        LastChange:
+          type: string
+          format: date-time
+        SequenceNumber:
+          type: integer
+          format: int64
