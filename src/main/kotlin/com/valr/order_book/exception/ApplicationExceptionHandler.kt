@@ -24,4 +24,18 @@ class ApplicationExceptionHandler {
     fun noContentHandler(ex: AccessDeniedException, request: HttpServletRequest): ApiError {
         return ApiError(ex.message, request.pathInfo, LocalDateTime.now())
     }
+
+    @ResponseBody
+    @ExceptionHandler(InsufficientFundsException::class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    fun insufficientFundsException(ex: InsufficientFundsException, request: HttpServletRequest): ApiError {
+        return ApiError(ex.message, request.pathInfo, LocalDateTime.now())
+    }
+
+    @ResponseBody
+    @ExceptionHandler(InvalidOrderException::class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    fun invalidOrderException(ex: InvalidOrderException, request: HttpServletRequest): ApiError {
+        return ApiError(ex.message, request.pathInfo, LocalDateTime.now())
+    }
 }

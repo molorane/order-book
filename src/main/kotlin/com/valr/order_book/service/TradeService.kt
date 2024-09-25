@@ -13,5 +13,4 @@ interface TradeService {
     ): List<TradeOrderDto>
 
     fun orderBook(currencyPair: CurrencyPairDto): OrderBookDto
-    fun placeLimitOrder(orderRequestDto: OrderRequestDto): OrderResponseDto
 }

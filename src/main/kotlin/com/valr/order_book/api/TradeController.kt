@@ -19,14 +19,10 @@ class TradeController(private val tradeService: TradeService) : TradeApiDelegate
         startTime: LocalDateTime?,
         endTime: LocalDateTime?
     ): ResponseEntity<List<TradeOrderDto>> {
-        return ResponseEntity.ok(tradeService.tradeHistory(currencyPair, skip, limit, startTime, endTime));
+        return ResponseEntity.ok(tradeService.tradeHistory(currencyPair, skip, limit, startTime, endTime))
     }
 
     override fun orderBook(currencyPair: CurrencyPairDto): ResponseEntity<OrderBookDto> {
-        return ResponseEntity.ok(tradeService.orderBook(currencyPair));
-    }
-
-    override fun placeLimitOrder(orderRequestDto: OrderRequestDto): ResponseEntity<OrderResponseDto> {
-        return ResponseEntity.ok(tradeService.placeLimitOrder(orderRequestDto));
+        return ResponseEntity.ok(tradeService.orderBook(currencyPair))
     }
 }

@@ -57,11 +57,4 @@ class TradeServiceImpl(private val tradeRepository: TradeRepository) : TradeServ
             lastChange = LocalDateTime.now(),
         )
     }
-
-    override fun placeLimitOrder(orderRequestDto: OrderRequestDto): OrderResponseDto {
-        val orderObj = TradeMapper.INSTANCE.requestToInternal(orderRequestDto)
-        val placeOder = tradeRepository.save(orderObj)
-
-        return TradeMapper.INSTANCE.internalToOrderResponse(placeOder)
-    }
 }

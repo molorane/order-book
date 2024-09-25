@@ -5,6 +5,6 @@ import com.valr.order_book.model.OrderResponseDto
 
 interface OrderService {
     fun validateOrder(orderRequest: OrderRequestDto): Boolean
-    fun checkUserBalance(userId: String): Boolean
-    fun processOrder(orderRequest: OrderRequestDto): OrderResponseDto
+    fun validateBalance(userId: String, orderRequest: OrderRequestDto): Boolean
+    fun processOrder(userId: String, orderRequest: OrderRequestDto): OrderResponseDto
 }
