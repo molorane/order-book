@@ -15,9 +15,6 @@ databaseChangeLog:
                   name: currency_pair
                   type: string
               - column:
-                  name: traded_at
-                  type: string
-              - column:
                   name: taker_side
                   type: string
               - column:

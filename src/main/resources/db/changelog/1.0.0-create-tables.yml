@@ -110,7 +110,7 @@ databaseChangeLog:
                       constraints:
                         nullable: false
                   - column:
-                      name: traded_at
+                      name: order_date
                       type: TIMESTAMP
                       defaultValueComputed: NOW()
                       constraints:

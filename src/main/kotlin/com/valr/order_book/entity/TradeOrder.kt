@@ -33,7 +33,7 @@ data class TradeOrder(
     @Enumerated(EnumType.STRING)
     val status: Status = Status.PLACED,
 
-    val tradedAt: LocalDateTime = LocalDateTime.now(),
+    val orderDate: LocalDateTime = LocalDateTime.now(),
 
     val postOnly: Boolean = false,
 
@@ -48,4 +48,7 @@ data class TradeOrder(
     val allowMargin: Boolean = false,
 
     val reduceOnly: Boolean = false,
+
+    @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY)
+    val trades: List<Trade>? = emptyList()
 )

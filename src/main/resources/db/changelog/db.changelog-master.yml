@@ -5,3 +5,5 @@ databaseChangeLog:
       file: /db/changelog/2.0.0-load-user-data.yml
   - include:
       file: /db/changelog/3.0.0-load-trade-orders.yml
+  - include:
+      file: /db/changelog/4.0.0-create-trade-table.yml

@@ -30,7 +30,7 @@ abstract class TradeMapper {
             tradeOrder.price,
             tradeOrder.quoteVolume,
             CurrencyPairMapper.INSTANCE.internalToDto(tradeOrder.currencyPair),
-            tradeOrder.tradedAt
+            tradeOrder.orderDate
         )
     }
 
@@ -45,7 +45,7 @@ abstract class TradeMapper {
             CurrencyPairMapper.INSTANCE.internalToDto(tradeOrder.currencyPair),
             StatusMapper.INSTANCE.internalToDto(tradeOrder.status),
             OrderTypeMapper.INSTANCE.internalToDto(tradeOrder.orderType),
-            tradeOrder.tradedAt
+            tradeOrder.orderDate
         )
     }
 
