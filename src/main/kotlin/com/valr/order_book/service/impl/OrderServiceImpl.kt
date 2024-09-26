@@ -1,7 +1,6 @@
 package com.valr.order_book.service.impl
 
 import com.valr.order_book.entity.TradeOrder
-import com.valr.order_book.entity.User
 import com.valr.order_book.entity.UserWallet
 import com.valr.order_book.entity.enums.TakerSide
 import com.valr.order_book.exception.InsufficientFundsException
@@ -13,7 +12,6 @@ import com.valr.order_book.model.OrderResponseDto
 import com.valr.order_book.model.SideDto
 import com.valr.order_book.repository.TradeRepository
 import com.valr.order_book.repository.UserRepository
-import com.valr.order_book.repository.projection.UserProjection
 import com.valr.order_book.service.OrderService
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -21,7 +19,8 @@ import java.util.*
 
 
 @Service
-class OrderServiceImpl(private val tradeRepository: TradeRepository, private val userRepository: UserRepository) : OrderService {
+class OrderServiceImpl(private val tradeRepository: TradeRepository, private val userRepository: UserRepository) :
+    OrderService {
 
     // Sell orders (min-heap for lowest price)
     private val sellOrders: PriorityQueue<TradeOrder> =
@@ -58,33 +57,33 @@ class OrderServiceImpl(private val tradeRepository: TradeRepository, private val
 
         println(user)
 
-//        val currency = orderRequest.pair?.let { CurrencyPairMapper.INSTANCE.dtoToInternal(it) }
-//        val wallets: List<UserProjection.Wallet> = user.get().getWallets()
-//
-//        if(orderRequest.side == SideDto.BUY) {
-//            val matchingWallet = wallets.filter { it.getCurrency().value == currency?.value?.substring(2) }
-//
-//            if(matchingWallet.isEmpty()) {
-//                return false
-//            }
-//
-//            val volume = orderRequest.quantity?.multiply(orderRequest.price)
-//            if(matchingWallet.first().getQuantity() < volume) {
-//                return false
-//            }
-//        }
-//
-//        if(orderRequest.side == SideDto.SELL) {
-//            val matchingWallet = wallets.filter { it.getCurrency().value == currency?.value?.substring(0, 2) }
-//
-//            if(matchingWallet.isEmpty()) {
-//                return false
-//            }
-//
-//            if(matchingWallet.first().getQuantity() < orderRequest.quantity) {
-//                return false
-//            }
-//        }
+        val currency = orderRequest.pair?.let { CurrencyPairMapper.INSTANCE.dtoToInternal(it) }
+        val wallets: List<UserWallet> = user.get().wallets
+
+        if (orderRequest.side == SideDto.BUY) {
+            val matchingWallet = wallets.filter { it.currency.value == currency?.value?.substring(3) }
+
+            if (matchingWallet.isEmpty()) {
+                return false
+            }
+
+            val volume = orderRequest.quantity?.multiply(orderRequest.price)
+            if (matchingWallet.first().quantity < volume) {
+                return false
+            }
+        }
+
+        if (orderRequest.side == SideDto.SELL) {
+            val matchingWallet = wallets.filter { it.currency.value == currency?.value?.substring(0, 3) }
+
+            if (matchingWallet.isEmpty()) {
+                return false
+            }
+
+            if (matchingWallet.first().quantity < orderRequest.quantity) {
+                return false
+            }
+        }
 
         return true;
     }
@@ -110,7 +109,7 @@ class OrderServiceImpl(private val tradeRepository: TradeRepository, private val
         // Put new order in a queue for processing
         // My thinking is that, placeOder should most likely be sent to Cache(Redis, Memcached etc) for global access
         // so that other instances can access it and perhaps process it
-        if(orderObj.takerSide == TakerSide.BUY) {
+        if (orderObj.takerSide == TakerSide.BUY) {
             buyOrders.add(placeOder)
         } else {
             sellOrders.add(placeOder)

@@ -1,6 +1,5 @@
 package com.valr.order_book.entity
 
-import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.persistence.*
 
 @Entity
@@ -12,7 +11,10 @@ data class User(
 
     val firstName: String,
 
-    @JsonManagedReference
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     val wallets: List<UserWallet>
-)
+) {
+    override fun toString(): String {
+        return "User(id=$id, firstName=$firstName)"
+    }
+}
