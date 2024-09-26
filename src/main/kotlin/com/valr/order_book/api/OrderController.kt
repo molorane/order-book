@@ -13,6 +13,6 @@ import org.springframework.stereotype.Service
 class OrderController(private val orderService: OrderService) : OrderApiDelegate {
 
     override fun placeLimitOrder(orderRequestDto: OrderRequestDto): ResponseEntity<OrderResponseDto> {
-        return ResponseEntity.ok(orderService.processOrder("2024", orderRequestDto))
+        return ResponseEntity.ok(orderService.processOrder(2024, orderRequestDto))
     }
 }

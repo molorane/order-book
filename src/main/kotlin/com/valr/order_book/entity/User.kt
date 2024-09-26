@@ -1,5 +1,6 @@
 package com.valr.order_book.entity
 
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.persistence.*
 
 @Entity
@@ -11,6 +12,7 @@ data class User(
 
     val firstName: String,
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private var wallets: List<UserWallet>
+    val wallets: List<UserWallet>
 )

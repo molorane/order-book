@@ -12,30 +12,30 @@ import java.time.LocalDateTime
 class ApplicationExceptionHandler {
 
     @ResponseBody
-    @ExceptionHandler(DataNotFoundException::class)
+    @ExceptionHandler(ResourceNotFoundException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    fun dataNotFoundHandler(ex: DataNotFoundException, request: HttpServletRequest): ApiError {
-        return ApiError(ex.message, request.pathInfo, LocalDateTime.now())
+    fun resourceNotFoundException(ex: ResourceNotFoundException, request: HttpServletRequest): ApiError {
+        return ApiError(ex.message, request.requestURI, LocalDateTime.now())
     }
 
     @ResponseBody
     @ExceptionHandler(AccessDeniedException::class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     fun noContentHandler(ex: AccessDeniedException, request: HttpServletRequest): ApiError {
-        return ApiError(ex.message, request.pathInfo, LocalDateTime.now())
+        return ApiError(ex.message, request.requestURI, LocalDateTime.now())
     }
 
     @ResponseBody
     @ExceptionHandler(InsufficientFundsException::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun insufficientFundsException(ex: InsufficientFundsException, request: HttpServletRequest): ApiError {
-        return ApiError(ex.message, request.pathInfo, LocalDateTime.now())
+        return ApiError(ex.message, request.requestURI, LocalDateTime.now())
     }
 
     @ResponseBody
     @ExceptionHandler(InvalidOrderException::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun invalidOrderException(ex: InvalidOrderException, request: HttpServletRequest): ApiError {
-        return ApiError(ex.message, request.pathInfo, LocalDateTime.now())
+        return ApiError(ex.message, request.requestURI, LocalDateTime.now())
     }
 }

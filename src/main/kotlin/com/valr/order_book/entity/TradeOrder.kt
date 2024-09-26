@@ -1,5 +1,6 @@
 package com.valr.order_book.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.valr.order_book.entity.enums.*
 import jakarta.persistence.*
 import java.math.BigDecimal
@@ -12,6 +13,10 @@ data class TradeOrder(
     val sequenceId: Long? = null,
 
     var id: String? = null,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    var user: User? = null,
 
     @Enumerated(EnumType.STRING)
     val takerSide: TakerSide = TakerSide.SELL,

@@ -150,8 +150,6 @@ components:
         - ETHZAR
         - SOLZAR
         - SHIBZAR
-        - BTCUSDT
-        - BTCUSDC
     Status:
       type: string
       default: PLACED
