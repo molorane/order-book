@@ -8,7 +8,7 @@ databaseChangeLog:
             columns:
               - column:
                   name:  id
-                  type:  BIGINT
+                  type:  BIGSERIAL
                   autoIncrement: true
                   constraints:
                     primaryKey: true
@@ -26,13 +26,13 @@ databaseChangeLog:
             columns:
               - column:
                   name:  id
-                  type:  BIGINT
+                  type:  BIGSERIAL
                   autoIncrement: true
                   constraints:
                     primaryKey: true
               - column:
                   name: user_id
-                  type: BIGINT
+                  type: BIGSERIAL
                   constraints:
                     foreignKeyName: fk_user_wallet_user_id
                     references: tbl_user(id)
@@ -56,7 +56,7 @@ databaseChangeLog:
               columns:
                   - column:
                       name:  sequence_id
-                      type:  BIGINT
+                      type:  BIGSERIAL
                       autoIncrement: true
                       constraints:
                           primaryKey: true
@@ -69,7 +69,7 @@ databaseChangeLog:
                             uniqueConstraintName: uk_id
                   - column:
                       name: user_id
-                      type: BIGINT
+                      type: BIGSERIAL
                       constraints:
                         foreignKeyName: fk_trade_order_user_id
                         references: tbl_user(id)
@@ -113,6 +113,12 @@ databaseChangeLog:
                       name: order_date
                       type: TIMESTAMP
                       defaultValueComputed: NOW()
+                      constraints:
+                        nullable: false
+                  - column:
+                      name: matched_quantity
+                      type: DECIMAL(16,8)
+                      defaultValue: '0.00'
                       constraints:
                         nullable: false
                   - column:

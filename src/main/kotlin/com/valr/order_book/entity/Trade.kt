@@ -1,6 +1,5 @@
 package com.valr.order_book.entity
 
-import com.valr.order_book.entity.enums.*
 import jakarta.persistence.*
 import java.math.BigDecimal
 import java.time.LocalDateTime

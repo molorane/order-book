@@ -8,20 +8,20 @@ databaseChangeLog:
               columns:
                   - column:
                       name:  id
-                      type:  BIGINT
+                      type:  BIGSERIAL
                       autoIncrement: true
                       constraints:
                           primaryKey: true
                   - column:
                       name: sell_order_id
-                      type: BIGINT
+                      type: BIGSERIAL
                       constraints:
                         foreignKeyName: fk_trade_sell_order_id
                         references: trade_order(sequence_id)
                         nullable: false
                   - column:
                       name: buy_order_id
-                      type: BIGINT
+                      type: BIGSERIAL
                       constraints:
                         foreignKeyName: fk_trade_buy_order_id
                         references: trade_order(sequence_id)

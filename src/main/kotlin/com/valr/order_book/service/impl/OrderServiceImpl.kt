@@ -6,21 +6,22 @@ import com.valr.order_book.entity.enums.TakerSide
 import com.valr.order_book.exception.InsufficientFundsException
 import com.valr.order_book.exception.InvalidOrderException
 import com.valr.order_book.mapper.CurrencyPairMapper
-import com.valr.order_book.mapper.TradeMapper
-import com.valr.order_book.model.OrderRequestDto
-import com.valr.order_book.model.OrderResponseDto
-import com.valr.order_book.model.SideDto
-import com.valr.order_book.repository.TradeRepository
+import com.valr.order_book.mapper.TradeOrderMapper
+import com.valr.order_book.model.*
+import com.valr.order_book.repository.TradeOrderRepository
 import com.valr.order_book.repository.UserRepository
 import com.valr.order_book.service.OrderService
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
+import java.time.LocalDateTime
 import java.util.*
-
+import java.util.stream.Collectors
 
 @Service
-class OrderServiceImpl(private val tradeRepository: TradeRepository, private val userRepository: UserRepository) :
-    OrderService {
+class OrderServiceImpl(
+    private val tradeOrderRepository: TradeOrderRepository,
+    private val userRepository: UserRepository
+) : OrderService {
 
     // Sell orders (min-heap for lowest price)
     private val sellOrders: PriorityQueue<TradeOrder> =
@@ -33,6 +34,7 @@ class OrderServiceImpl(private val tradeRepository: TradeRepository, private val
         PriorityQueue<TradeOrder>(java.util.Comparator<TradeOrder> { a: TradeOrder, b: TradeOrder ->
             b.price.compareTo(a.price)
         })
+
 
     /*
         A valid order request object must have
@@ -101,10 +103,10 @@ class OrderServiceImpl(private val tradeRepository: TradeRepository, private val
         }
 
         // Step 3: process the order
-        val orderObj = TradeMapper.INSTANCE.requestToInternal(orderRequest)
+        val orderObj = TradeOrderMapper.INSTANCE.requestToInternal(orderRequest)
 
         // Record this order in a DB
-        val placeOder = tradeRepository.save(orderObj)
+        val placeOder = tradeOrderRepository.save(orderObj)
 
         // Put new order in a queue for processing
         // My thinking is that, placeOder should most likely be sent to Cache(Redis, Memcached etc) for global access
@@ -115,6 +117,28 @@ class OrderServiceImpl(private val tradeRepository: TradeRepository, private val
             sellOrders.add(placeOder)
         }
 
-        return TradeMapper.INSTANCE.internalToOrderResponse(placeOder)
+        return TradeOrderMapper.INSTANCE.internalToOrderResponse(placeOder)
+    }
+
+    override fun orderBook(currencyPair: CurrencyPairDto): OrderBookDto {
+
+        val orderBook = tradeOrderRepository.orderBook(
+            CurrencyPairMapper.INSTANCE.dtoToInternal(currencyPair)
+        )
+            .stream()
+            .map { trade -> TradeOrderMapper.INSTANCE.orderBookProjection(trade) }
+            .collect(Collectors.groupingBy(OrderDto::side))
+
+        val asks = orderBook[SideDto.SELL]?.toMutableList()
+        val bids = orderBook[SideDto.BUY]?.toMutableList()
+
+        asks?.sortWith(compareBy<OrderDto> { it.price })
+        bids?.sortByDescending { it.price }
+
+        return OrderBookDto(
+            asks = asks,
+            bids = bids,
+            lastChange = LocalDateTime.now(),
+        )
     }
 }

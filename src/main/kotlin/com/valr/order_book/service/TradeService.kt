@@ -1,6 +1,7 @@
 package com.valr.order_book.service
 
-import com.valr.order_book.model.*
+import com.valr.order_book.model.CurrencyPairDto
+import com.valr.order_book.model.TradeDto
 import java.time.LocalDateTime
 
 interface TradeService {
@@ -10,7 +11,5 @@ interface TradeService {
         limit: Int? = 1,
         startTime: LocalDateTime? = null,
         endTime: LocalDateTime? = null
-    ): List<TradeOrderDto>
-
-    fun orderBook(currencyPair: CurrencyPairDto): OrderBookDto
+    ): List<TradeDto>
 }

@@ -1,6 +1,5 @@
 package com.valr.order_book.entity
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.valr.order_book.entity.enums.*
 import jakarta.persistence.*
 import java.math.BigDecimal
@@ -35,6 +34,8 @@ data class TradeOrder(
 
     val orderDate: LocalDateTime = LocalDateTime.now(),
 
+    val matchedQuantity: BigDecimal = 0.toBigDecimal(),
+
     val postOnly: Boolean = false,
 
     val customerOrderId: String? = null,
@@ -51,4 +52,8 @@ data class TradeOrder(
 
     @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY)
     val trades: List<Trade>? = emptyList()
-)
+) {
+    override fun toString(): String {
+        return "TradeOrder(id=$sequenceId, firstName=$id)"
+    }
+}

@@ -10,20 +10,20 @@ import org.springframework.test.context.ActiveProfiles
 @DataJpaTest
 @ActiveProfiles("test")
 class TradeOrderRepositoryTest @Autowired constructor(
-    val tradeRepository: TradeRepository,
+    val tradeOrderRepository: TradeOrderRepository,
 ) {
 
     @Test
     fun `When findAllByCurrencyPair with BTCZAR then return 99 Trades`() {
         Assertions.assertTrue(
-            tradeRepository.findAllByCurrencyPair(CurrencyPair.BTCZAR).size == 99
+            tradeOrderRepository.findAllByCurrencyPair(CurrencyPair.BTCZAR).size == 99
         )
     }
 
     @Test
     fun `When findAllByCurrencyPair SOLZAR then return 0 Trades`() {
         Assertions.assertTrue(
-            tradeRepository.findAllByCurrencyPair(CurrencyPair.SOLZAR).isEmpty()
+            tradeOrderRepository.findAllByCurrencyPair(CurrencyPair.SOLZAR).isEmpty()
         )
     }
 }
