@@ -2,7 +2,7 @@ package com.valr.order_book.service
 
 import com.valr.order_book.entity.enums.CurrencyPair
 import com.valr.order_book.model.CurrencyPairDto
-import com.valr.order_book.repository.TradeOrderRepository
+import com.valr.order_book.repository.OrderRepository
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
@@ -18,12 +18,12 @@ class TradeOrderProcessingServiceTest(
 ) {
 
     @MockBean
-    lateinit var repository: TradeOrderRepository
+    lateinit var repository: OrderRepository
 
     @Test
     fun `given BTCZAR currency pair should return empty list`() {
         // Arrange
-        Mockito.`when`(repository.findAllByCurrencyPair(CurrencyPair.ETHZAR)).thenReturn(
+        Mockito.`when`(repository.orderBook(CurrencyPair.ETHZAR)).thenReturn(
             emptyList()
         )
 

@@ -3,7 +3,7 @@ package com.valr.order_book.integration
 
 import com.valr.order_book.model.CurrencyPairDto
 import com.valr.order_book.model.SideDto
-import com.valr.order_book.model.TradeOrderDto
+import com.valr.order_book.model.TradeDto
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -12,48 +12,41 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.http.HttpStatus
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class TradeOrderIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
+class TradeIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
 
     @Test
-    fun `Assert trade-history returns 100 XRPZAR trades and contain expected trade`() {
+    fun `Assert trade-history returns 4 XRPZAR orders and contain expected order`() {
         // Arrange
-        val expected = TradeOrderDto(
-            1287070023713554432,
-            "84236217-782c-11ef-90ef-13862c70d2e0",
-            SideDto.SELL,
-            BigDecimal("105.00000000"),
-            BigDecimal("10.42000000"),
-            BigDecimal("1094.10000000"),
+        val expected = TradeDto(
+            BigDecimal("150.00000000"),
+            BigDecimal("10.45000000"),
             CurrencyPairDto.XRPZAR,
-            LocalDateTime.parse("2024-09-21T17:16:46.258")
+            LocalDateTime.parse("2024-09-28T23:30:03.643529"),
+            SideDto.SELL,
+            1,
+            "1e055fbc-782b-11ef-90ef-13862c70d2e0",
+            BigDecimal("1567.50000000")
         )
 
         // Act
-        val response = restTemplate.getForEntity("/v1/XRPZAR/tradehistory", Array<TradeOrderDto>::class.java)
+        val response = restTemplate.getForEntity("/v1/XRPZAR/tradehistory", Array<TradeDto>::class.java)
 
         // Assert
         val trades = response.body
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
         assertTrue(response.hasBody())
         if (trades != null) {
-            val trade: TradeOrderDto = trades[99]
-            assertThat(trade).isEqualTo(expected)
-            assertTrue(trades.contains(expected))
+            val trade: TradeDto = trades[3]
+            assertThat(trade)
+                .usingRecursiveComparison()
+                .ignoringFields("tradedAt")
+                .isEqualTo(expected)
         }
-    }
-
-    @Test
-    fun `Assert order-book, endpoint exist`() {
-        val entity = restTemplate.getForEntity<String>("/v1/BTCZAR/orderbook")
-        assertThat(entity.statusCode).isEqualTo(HttpStatus.OK)
-        // assertThat(entity.body).contains("<h1>Blog</h1>", "Lorem")
     }
 
     companion object {

@@ -235,28 +235,6 @@ components:
         reduceOnly:
           type: boolean
           default: false
-    TradeOrder:
-      type: object
-      properties:
-        sequenceId:
-          type: integer
-          format: int64
-        id:
-          type: string
-        takerSide:
-          $ref: '#/components/schemas/Side'
-        quantity:
-          type: number
-        price:
-          type: number
-        quoteVolume:
-          type: number
-        currencyPair:
-          $ref: '#/components/schemas/CurrencyPair'
-        orderDate:
-          type: string
-          format: date-time
-          example: '2023-01-01T17:32:28Z'
     Trade:
       type: object
       properties:

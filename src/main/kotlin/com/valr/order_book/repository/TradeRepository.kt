@@ -48,8 +48,8 @@ interface TradeRepository : JpaRepository<Trade, Long>, JpaSpecificationExecutor
     )
     fun tradeHistory(
         currencyPair: CurrencyPair,
-        fromDate: LocalDateTime?,
-        toDate: LocalDateTime?,
+        fromDate: LocalDateTime? = null,
+        toDate: LocalDateTime? = null,
         pageable: Pageable
     ): Page<TradeHistoryProjection>
 }

@@ -26,7 +26,7 @@ abstract class TradeMapper {
             SideMapper.INSTANCE.internalToDto(trade.getTakerSide()),
             trade.getSequenceId(),
             trade.getId(),
-            trade.getQuoteVolume()
+            trade.getQuoteVolume().setScale(8)
         )
     }
 

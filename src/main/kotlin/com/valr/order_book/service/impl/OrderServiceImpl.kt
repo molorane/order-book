@@ -8,7 +8,7 @@ import com.valr.order_book.exception.InvalidOrderException
 import com.valr.order_book.mapper.CurrencyPairMapper
 import com.valr.order_book.mapper.TradeOrderMapper
 import com.valr.order_book.model.*
-import com.valr.order_book.repository.TradeOrderRepository
+import com.valr.order_book.repository.OrderRepository
 import com.valr.order_book.repository.UserRepository
 import com.valr.order_book.service.OrderService
 import org.springframework.stereotype.Service
@@ -19,7 +19,7 @@ import java.util.stream.Collectors
 
 @Service
 class OrderServiceImpl(
-    private val tradeOrderRepository: TradeOrderRepository,
+    private val orderRepository: OrderRepository,
     private val userRepository: UserRepository
 ) : OrderService {
 
@@ -106,7 +106,7 @@ class OrderServiceImpl(
         val orderObj = TradeOrderMapper.INSTANCE.requestToInternal(orderRequest)
 
         // Record this order in a DB
-        val placeOder = tradeOrderRepository.save(orderObj)
+        val placeOder = orderRepository.save(orderObj)
 
         // Put new order in a queue for processing
         // My thinking is that, placeOder should most likely be sent to Cache(Redis, Memcached etc) for global access
@@ -122,7 +122,7 @@ class OrderServiceImpl(
 
     override fun orderBook(currencyPair: CurrencyPairDto): OrderBookDto {
 
-        val orderBook = tradeOrderRepository.orderBook(
+        val orderBook = orderRepository.orderBook(
             CurrencyPairMapper.INSTANCE.dtoToInternal(currencyPair)
         )
             .stream()

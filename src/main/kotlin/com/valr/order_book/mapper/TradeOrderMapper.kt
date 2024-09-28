@@ -5,7 +5,6 @@ import com.valr.order_book.entity.enums.Status
 import com.valr.order_book.model.OrderDto
 import com.valr.order_book.model.OrderRequestDto
 import com.valr.order_book.model.OrderResponseDto
-import com.valr.order_book.model.TradeOrderDto
 import com.valr.order_book.repository.projection.OrderBookProjection
 import org.mapstruct.Mapper
 import org.mapstruct.ReportingPolicy
@@ -29,19 +28,6 @@ abstract class TradeOrderMapper {
             tradeOrder.quantity,
             tradeOrder.price,
             CurrencyPairMapper.INSTANCE.internalToDto(tradeOrder.currencyPair)
-        )
-    }
-
-    fun internalToDto(tradeOrder: TradeOrder): TradeOrderDto {
-        return TradeOrderDto(
-            tradeOrder.sequenceId,
-            tradeOrder.id,
-            SideMapper.INSTANCE.internalToDto(tradeOrder.takerSide),
-            tradeOrder.quantity,
-            tradeOrder.price,
-            tradeOrder.quoteVolume,
-            CurrencyPairMapper.INSTANCE.internalToDto(tradeOrder.currencyPair),
-            tradeOrder.orderDate
         )
     }
 
@@ -92,8 +78,6 @@ abstract class TradeOrderMapper {
             order.getOrderCount()
         )
     }
-
-    abstract fun internalsToDTOs(entities: List<TradeOrder>): List<TradeOrderDto>
 
     abstract fun internalsToOrderDTOs(entities: List<TradeOrder>): List<OrderDto>
 }
