@@ -1,11 +1,14 @@
 package com.valr.order_book.integration
 
 
+import com.valr.order_book.entity.enums.TakerSide
 import com.valr.order_book.model.CurrencyPairDto
 import com.valr.order_book.model.SideDto
 import com.valr.order_book.model.TradeDto
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -19,8 +22,48 @@ import java.time.LocalDateTime
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class TradeIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
 
+
+
     @Test
-    fun `Assert trade-history returns 4 XRPZAR orders and contain expected order`() {
+    fun `When tradeHistory with XRPZAR then return 4 trades`() {
+        // Arrange
+
+        // Act
+        val response = restTemplate.getForEntity("/v1/XRPZAR/tradehistory", Array<TradeDto>::class.java)
+
+        val trades = response.body
+
+
+        // Assert
+        assertNotNull(trades, "Value should not be null")
+
+        assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+        assertTrue(response.hasBody())
+        assertTrue(trades?.size == 4)
+
+    }
+
+    @Test
+    fun `When tradeHistory with XRPZAR should contain 2 sell trades and 2 buy trades`() {
+        // Arrange
+
+        // Act
+        val response = restTemplate.getForEntity("/v1/XRPZAR/tradehistory", Array<TradeDto>::class.java)
+
+        val trades = response.body
+
+        // Assert
+        Assertions.assertTrue(
+            trades?.count { trade -> trade.takerSide == SideDto.SELL } == 2
+        )
+
+        Assertions.assertTrue(
+            trades?.count { trade -> trade.takerSide == SideDto.BUY } == 2
+        )
+    }
+
+    @Test
+    fun `When tradeHistory with XRPZAR then return 4 XRPZAR and contain expected trade`() {
         // Arrange
         val expected = TradeDto(
             BigDecimal("150.00000000"),
@@ -38,8 +81,13 @@ class TradeIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
 
         // Assert
         val trades = response.body
+
+        assertNotNull(trades, "Value should not be null")
+
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
         assertTrue(response.hasBody())
+        assertTrue(trades?.size == 4)
+
         if (trades != null) {
             val trade: TradeDto = trades[3]
             assertThat(trade)
@@ -47,6 +95,19 @@ class TradeIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
                 .ignoringFields("tradedAt")
                 .isEqualTo(expected)
         }
+    }
+
+    @Test
+    fun `When tradeHistory BTCZAR then return 0 trades`() {
+        // Arrange
+        val zeroTrades = 0
+
+        // Act
+        val response = restTemplate.getForEntity("/v1/BTCZAR/tradehistory", Array<TradeDto>::class.java)
+
+        val trades = response.body
+
+        assertThat(trades?.size).isEqualTo(zeroTrades)
     }
 
     companion object {

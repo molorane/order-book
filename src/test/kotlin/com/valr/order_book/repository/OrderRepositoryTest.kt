@@ -67,7 +67,7 @@ class OrderRepositoryTest @Autowired constructor(
     }
 
     @Test
-    fun `When orderBook SOLZAR then return 0 Orders`() {
+    fun `When orderBook BTCZAR then return 0 Orders`() {
         Assertions.assertTrue(
             orderRepository.orderBook(CurrencyPair.BTCZAR).isEmpty()
         )

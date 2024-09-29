@@ -22,8 +22,7 @@ class TradeRepositoryTest @Autowired constructor(
 ) {
 
     @BeforeEach
-    fun setUp() {
-    }
+    fun setUp() {}
 
     @Test
     fun `When tradeHistory with XRPZAR then return only 1 page with 4 trades`() {
@@ -44,7 +43,7 @@ class TradeRepositoryTest @Autowired constructor(
     }
 
     @Test
-    fun `When tradeHistory with XRPZAR orders should contain 2 sell order and 2 buy orders`() {
+    fun `When tradeHistory with XRPZAR should contain 2 sell trades and 2 buy trades`() {
         // Arrange
         val pageable = PageRequest.of(0, 20)
 
@@ -66,7 +65,7 @@ class TradeRepositoryTest @Autowired constructor(
     }
 
     @Test
-    fun `When tradeHistory with XRPZAR orders should have expected sell order`() {
+    fun `When tradeHistory with XRPZAR should have expected sell trades`() {
         // Arrange
         val pageable = PageRequest.of(0, 20)
         val id = "1e055fbc-782b-11ef-90ef-13862c70d2e0";
@@ -91,10 +90,9 @@ class TradeRepositoryTest @Autowired constructor(
     }
 
     @Test
-    fun `When tradeHistory SOLZAR then return 0 Orders`() {
+    fun `When tradeHistory BTCZAR then return 0 trades`() {
         // Arrange
         val pageable = PageRequest.of(0, 20)
-
 
         Assertions.assertTrue(
             tradeRepository.tradeHistory(
