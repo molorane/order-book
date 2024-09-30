@@ -2,6 +2,7 @@ package com.valr.order_book.service.impl
 
 import com.valr.order_book.entity.TradeOrder
 import com.valr.order_book.entity.UserWallet
+import com.valr.order_book.entity.enums.Currency
 import com.valr.order_book.entity.enums.TakerSide
 import com.valr.order_book.exception.InsufficientFundsException
 import com.valr.order_book.exception.InvalidOrderException
@@ -10,6 +11,7 @@ import com.valr.order_book.mapper.TradeOrderMapper
 import com.valr.order_book.model.*
 import com.valr.order_book.repository.OrderRepository
 import com.valr.order_book.repository.UserRepository
+import com.valr.order_book.repository.UserWalletRepository
 import com.valr.order_book.service.OrderService
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -20,7 +22,8 @@ import java.util.stream.Collectors
 @Service
 class OrderServiceImpl(
     private val orderRepository: OrderRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val userWalletRepository: UserWalletRepository
 ) : OrderService {
 
     // Sell orders (min-heap for lowest price)
@@ -46,6 +49,23 @@ class OrderServiceImpl(
                 (orderRequest.price.multiply(orderRequest.quantity) >= BigDecimal("10"))
     }
 
+    // This is a pseudo-method, this can be read from appropriate table of currencies from storage/API
+    override fun matchBuyCurrency(currency: CurrencyPairDto): Currency {
+        return when (currency) {
+            CurrencyPairDto.XRPZAR, CurrencyPairDto.BTCZAR -> Currency.ZAR
+            else -> throw InvalidOrderException("Invalid currency pair")
+        }
+    }
+
+    // This is a pseudo-method, this can be read from appropriate table of currencies from storage/API
+    override fun matchSellCurrency(currency: CurrencyPairDto): Currency {
+        return when (currency) {
+            CurrencyPairDto.XRPZAR -> Currency.XRP
+            CurrencyPairDto.BTCZAR -> Currency.BTC
+            else -> throw InvalidOrderException("Invalid currency pair")
+        }
+    }
+
     /*
         Validate that user has sufficient funds to place an order
         I think here we first get user's wallets, then check the corresponding wallet
@@ -57,37 +77,17 @@ class OrderServiceImpl(
             return false
         }
 
-        println(user)
+        val volume = orderRequest.quantity?.multiply(orderRequest.price)
 
-        val currency = orderRequest.pair?.let { CurrencyPairMapper.INSTANCE.dtoToInternal(it) }
-        val wallets: List<UserWallet> = user.get().wallets
+        val balance = userWalletRepository.walletBalance(userId,
+            if (orderRequest.side == SideDto.BUY) matchSellCurrency(orderRequest.pair!!) else matchSellCurrency(orderRequest.pair!!)
+        )
 
-        if (orderRequest.side == SideDto.BUY) {
-            val matchingWallet = wallets.filter { it.currency.value == currency?.value?.substring(3) }
-
-            if (matchingWallet.isEmpty()) {
-                return false
-            }
-
-            val volume = orderRequest.quantity?.multiply(orderRequest.price)
-            if (matchingWallet.first().inflow < volume) {
-                return false
-            }
+        if (balance.isEmpty) {
+            return false
         }
 
-        if (orderRequest.side == SideDto.SELL) {
-            val matchingWallet = wallets.filter { it.currency.value == currency?.value?.substring(0, 3) }
-
-            if (matchingWallet.isEmpty()) {
-                return false
-            }
-
-            if (matchingWallet.first().inflow < orderRequest.quantity) {
-                return false
-            }
-        }
-
-        return true;
+        return balance.get().getQuantityDifference() >= volume;
     }
 
     override fun processOrder(userId: Long, orderRequest: OrderRequestDto): OrderResponseDto {

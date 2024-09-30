@@ -1,6 +1,7 @@
 package com.valr.order_book.entity
 
 import com.valr.order_book.entity.enums.Currency
+import com.valr.order_book.entity.enums.FlowType
 import jakarta.persistence.*
 import java.math.BigDecimal
 
@@ -13,9 +14,10 @@ data class UserWallet(
     @Enumerated(EnumType.STRING)
     val currency: Currency = Currency.ZAR,
 
-    val inflow: BigDecimal = 0.toBigDecimal(),
+    @Enumerated(EnumType.STRING)
+    val flowType: FlowType = FlowType.IN,
 
-    val outflow: BigDecimal = 0.toBigDecimal(),
+    val quantity: BigDecimal = 0.toBigDecimal(),
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
