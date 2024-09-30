@@ -71,6 +71,8 @@ class OrderServiceImpl(
         to validate that the user has sufficient funds to place an order
         Also, I thought of a situation where a user has placed an order, but it has not been executed
         E.g User placed a SELL order of 100 XRPs, then places another SELL order of 20 XRPs while the previous order is still open
+        In this scenario, I thought I can sum the open orders and the order the user is trying to place, if the total quantity/volume is less than
+        balance in the wallet, user can proceed with another order, else, throw InsufficientFundsException
     */
     override fun fundsAvailable(userId: Long, orderRequest: OrderRequestDto): Boolean {
         val user = userRepository.findUserWithWallets(userId)
