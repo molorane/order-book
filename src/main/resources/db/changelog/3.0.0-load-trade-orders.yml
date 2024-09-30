@@ -18,6 +18,9 @@ databaseChangeLog:
                   name: taker_side
                   type: string
               - column:
+                  name: sequence_id
+                  type: string
+              - column:
                   name: id
                   type: string
               - column:

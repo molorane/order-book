@@ -59,6 +59,14 @@ databaseChangeLog:
                   constraints:
                     nullable: false
   - changeSet:
+      id: 1
+      author: Mothusi Molorane
+      changes:
+        - createSequence:
+            sequenceName: trade_order_seq
+            incrementBy: 1
+            startValue: 10
+  - changeSet:
       id:  1.0.0.trade-order-table
       author:  Mothusi Molorane
       changes:
@@ -68,9 +76,9 @@ databaseChangeLog:
                   - column:
                       name:  sequence_id
                       type:  BIGSERIAL
-                      autoIncrement: true
                       constraints:
                           primaryKey: true
+                          nullable: false
                   - column:
                         name: id
                         type: varchar(40)
