@@ -43,8 +43,19 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: quantity
+                  name: flow_type
                   type: varchar(10)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity
+                  type: DECIMAL(16,8)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sys_date
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
                   constraints:
                     nullable: false
   - changeSet:
@@ -162,3 +173,10 @@ databaseChangeLog:
         - sql:
             dbms: 'all'
             sql: ALTER TABLE trade_order ADD CONSTRAINT CHK_OrderType CHECK (order_type IN ('LIMIT_ORDER', 'MARKET_ORDER'));
+  - changeSet:
+      id: 1.0.0-add-check-constraint-on-flow-type
+      author: Mothusi Molorane
+      changes:
+        - sql:
+            dbms: 'all'
+            sql: ALTER TABLE user_wallet ADD CONSTRAINT CHK_FLowType CHECK (flow_type IN ('IN', 'OUT'));

@@ -13,7 +13,9 @@ data class UserWallet(
     @Enumerated(EnumType.STRING)
     val currency: Currency = Currency.ZAR,
 
-    val quantity: BigDecimal = 0.toBigDecimal(),
+    val inflow: BigDecimal = 0.toBigDecimal(),
+
+    val outflow: BigDecimal = 0.toBigDecimal(),
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

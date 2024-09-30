@@ -70,7 +70,7 @@ class OrderServiceImpl(
             }
 
             val volume = orderRequest.quantity?.multiply(orderRequest.price)
-            if (matchingWallet.first().quantity < volume) {
+            if (matchingWallet.first().inflow < volume) {
                 return false
             }
         }
@@ -82,7 +82,7 @@ class OrderServiceImpl(
                 return false
             }
 
-            if (matchingWallet.first().quantity < orderRequest.quantity) {
+            if (matchingWallet.first().inflow < orderRequest.quantity) {
                 return false
             }
         }
