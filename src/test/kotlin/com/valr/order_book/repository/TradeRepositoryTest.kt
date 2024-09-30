@@ -4,7 +4,7 @@ package com.valr.order_book.repository
 import com.valr.order_book.entity.enums.CurrencyPair
 import com.valr.order_book.entity.enums.TakerSide
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,7 +22,8 @@ class TradeRepositoryTest @Autowired constructor(
 ) {
 
     @BeforeEach
-    fun setUp() {}
+    fun setUp() {
+    }
 
     @Test
     fun `When tradeHistory with XRPZAR then return only 1 page with 4 trades`() {
@@ -55,11 +56,11 @@ class TradeRepositoryTest @Autowired constructor(
 
 
         // Assert
-        Assertions.assertTrue(
+        assertTrue(
             trades.count { trade -> trade.getTakerSide() == TakerSide.SELL } == 2
         )
 
-        Assertions.assertTrue(
+        assertTrue(
             trades.count { trade -> trade.getTakerSide() == TakerSide.BUY } == 2
         )
     }
@@ -94,7 +95,7 @@ class TradeRepositoryTest @Autowired constructor(
         // Arrange
         val pageable = PageRequest.of(0, 20)
 
-        Assertions.assertTrue(
+        assertTrue(
             tradeRepository.tradeHistory(
                 currencyPair = CurrencyPair.BTCZAR,
                 pageable = pageable,

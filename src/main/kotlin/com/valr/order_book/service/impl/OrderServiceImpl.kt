@@ -25,15 +25,15 @@ class OrderServiceImpl(
 
     // Sell orders (min-heap for lowest price)
     private val sellOrders: PriorityQueue<TradeOrder> =
-        PriorityQueue<TradeOrder>(java.util.Comparator<TradeOrder> { a: TradeOrder, b: TradeOrder ->
+        PriorityQueue<TradeOrder> { a: TradeOrder, b: TradeOrder ->
             a.price.compareTo(b.price)
-        })
+        }
 
     // Buy orders (max-heap for highest price)
     private val buyOrders: PriorityQueue<TradeOrder> =
-        PriorityQueue<TradeOrder>(java.util.Comparator<TradeOrder> { a: TradeOrder, b: TradeOrder ->
+        PriorityQueue<TradeOrder> { a: TradeOrder, b: TradeOrder ->
             b.price.compareTo(a.price)
-        })
+        }
 
 
     /*
@@ -136,8 +136,8 @@ class OrderServiceImpl(
         bids?.sortByDescending { it.price }
 
         return OrderBookDto(
-            asks = asks,
-            bids = bids,
+            asks = asks ?: emptyList(),
+            bids = bids ?: emptyList(),
             lastChange = LocalDateTime.now(),
         )
     }

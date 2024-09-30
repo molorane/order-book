@@ -19,8 +19,8 @@ abstract class TradeMapper {
 
     fun tradeHistory(trade: TradeHistoryProjection): TradeDto {
         return TradeDto(
-            trade.getQuantity(),
             trade.getPrice(),
+            trade.getQuantity(),
             CurrencyPairMapper.INSTANCE.internalToDto(trade.getCurrencyPair()),
             trade.getTradedAt(),
             SideMapper.INSTANCE.internalToDto(trade.getTakerSide()),

@@ -1,13 +1,11 @@
 package com.valr.order_book.integration
 
 
-import com.valr.order_book.entity.enums.TakerSide
 import com.valr.order_book.model.CurrencyPairDto
 import com.valr.order_book.model.SideDto
 import com.valr.order_book.model.TradeDto
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
@@ -21,7 +19,6 @@ import java.time.LocalDateTime
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class TradeIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
-
 
 
     @Test
@@ -53,11 +50,11 @@ class TradeIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
         val trades = response.body
 
         // Assert
-        Assertions.assertTrue(
+        assertTrue(
             trades?.count { trade -> trade.takerSide == SideDto.SELL } == 2
         )
 
-        Assertions.assertTrue(
+        assertTrue(
             trades?.count { trade -> trade.takerSide == SideDto.BUY } == 2
         )
     }
@@ -66,8 +63,8 @@ class TradeIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
     fun `When tradeHistory with XRPZAR then return 4 XRPZAR and contain expected trade`() {
         // Arrange
         val expected = TradeDto(
-            BigDecimal("150.00000000"),
             BigDecimal("10.45000000"),
+            BigDecimal("150.00000000"),
             CurrencyPairDto.XRPZAR,
             LocalDateTime.parse("2024-09-28T23:30:03.643529"),
             SideDto.SELL,
