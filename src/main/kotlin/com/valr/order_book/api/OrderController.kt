@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service
 class OrderController(private val orderService: OrderService) : OrderApiDelegate {
 
     override fun placeOrder(orderRequestDto: OrderRequestDto): ResponseEntity<OrderResponseDto> {
-        return ResponseEntity.ok(orderService.processOrder(2024, orderRequestDto))
+        return ResponseEntity.ok(orderService.placeOrder(2024, orderRequestDto))
     }
 
     override fun orderBook(currencyPair: CurrencyPairDto): ResponseEntity<OrderBookDto> {
