@@ -11,6 +11,6 @@ interface OrderService {
     fun matchBuyCurrency(currency: CurrencyPairDto): Currency
     fun matchSellCurrency(currency: CurrencyPairDto): Currency
     fun fundsAvailable(userId: Long, orderRequest: OrderRequestDto): Boolean
-    fun processOrder(userId: Long, orderRequest: OrderRequestDto): OrderResponseDto
+    fun placeOrder(userId: Long, orderRequest: OrderRequestDto): OrderResponseDto
     fun orderBook(currencyPair: CurrencyPairDto): OrderBookDto
 }

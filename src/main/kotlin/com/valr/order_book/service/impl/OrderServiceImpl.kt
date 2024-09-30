@@ -68,7 +68,9 @@ class OrderServiceImpl(
     /*
         Validate that user has sufficient funds to place an order
         I think here we first get user's wallets, then check the corresponding wallet
-        to validate that the user has sufficient funds to make a trade
+        to validate that the user has sufficient funds to place an order
+        Also, I thought of a situation where a user has placed an order, but it has not been executed
+        E.g User placed a SELL order of 100 XRPs, then places another SELL order of 20 XRPs while the previous order is still open
     */
     override fun fundsAvailable(userId: Long, orderRequest: OrderRequestDto): Boolean {
         val user = userRepository.findUserWithWallets(userId)
@@ -92,7 +94,7 @@ class OrderServiceImpl(
         return balance.get().getQuantityDifference() >= volume
     }
 
-    override fun processOrder(userId: Long, orderRequest: OrderRequestDto): OrderResponseDto {
+    override fun placeOrder(userId: Long, orderRequest: OrderRequestDto): OrderResponseDto {
 
         // Step 1: Ensure the order request object is valid
         if (!validOrder(orderRequest)) {
@@ -108,18 +110,19 @@ class OrderServiceImpl(
         val orderObj = TradeOrderMapper.INSTANCE.requestToInternal(orderRequest)
 
         // Record this order in a DB
-        val placeOder = orderRepository.save(orderObj)
+        val newOrder = orderRepository.save(orderObj)
 
         // Put new order in a queue for processing
-        // My thinking is that, placeOder should most likely be sent to Cache(Redis, Memcached etc) for global access
-        // so that other instances can access it and perhaps process it
+        // My thinking is that, newOrder should most likely be sent to Cache(Redis, Memcached etc) for global access
+        // so that other running instances can access it and perhaps process it
+        // Running instances since they are running concurrently, there must be thread safety to ensure correct order processing
         if (orderObj.takerSide == TakerSide.BUY) {
-            buyOrders.add(placeOder)
+            buyOrders.add(newOrder)
         } else {
-            sellOrders.add(placeOder)
+            sellOrders.add(newOrder)
         }
 
-        return TradeOrderMapper.INSTANCE.internalToOrderResponse(placeOder)
+        return TradeOrderMapper.INSTANCE.internalToOrderResponse(newOrder)
     }
 
     override fun orderBook(currencyPair: CurrencyPairDto): OrderBookDto {
