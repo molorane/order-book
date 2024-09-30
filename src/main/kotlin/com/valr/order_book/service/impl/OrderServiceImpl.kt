@@ -1,7 +1,6 @@
 package com.valr.order_book.service.impl
 
 import com.valr.order_book.entity.TradeOrder
-import com.valr.order_book.entity.UserWallet
 import com.valr.order_book.entity.enums.Currency
 import com.valr.order_book.entity.enums.TakerSide
 import com.valr.order_book.exception.InsufficientFundsException
@@ -72,22 +71,25 @@ class OrderServiceImpl(
         to validate that the user has sufficient funds to make a trade
     */
     override fun fundsAvailable(userId: Long, orderRequest: OrderRequestDto): Boolean {
-        val user = userRepository.findUserWithWallets(userId);
+        val user = userRepository.findUserWithWallets(userId)
         if (!user.isPresent) {
             return false
         }
 
         val volume = orderRequest.quantity?.multiply(orderRequest.price)
 
-        val balance = userWalletRepository.walletBalance(userId,
-            if (orderRequest.side == SideDto.BUY) matchSellCurrency(orderRequest.pair!!) else matchSellCurrency(orderRequest.pair!!)
+        val balance = userWalletRepository.walletBalance(
+            userId,
+            if (orderRequest.side == SideDto.BUY) matchSellCurrency(orderRequest.pair!!) else matchSellCurrency(
+                orderRequest.pair!!
+            )
         )
 
         if (balance.isEmpty) {
             return false
         }
 
-        return balance.get().getQuantityDifference() >= volume;
+        return balance.get().getQuantityDifference() >= volume
     }
 
     override fun processOrder(userId: Long, orderRequest: OrderRequestDto): OrderResponseDto {
