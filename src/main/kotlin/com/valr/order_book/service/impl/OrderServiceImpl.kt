@@ -9,7 +9,6 @@ import com.valr.order_book.mapper.CurrencyPairMapper
 import com.valr.order_book.mapper.TradeOrderMapper
 import com.valr.order_book.model.*
 import com.valr.order_book.repository.OrderRepository
-import com.valr.order_book.repository.UserRepository
 import com.valr.order_book.repository.UserWalletRepository
 import com.valr.order_book.service.OrderService
 import org.springframework.stereotype.Service
@@ -21,7 +20,6 @@ import java.util.stream.Collectors
 @Service
 class OrderServiceImpl(
     private val orderRepository: OrderRepository,
-    private val userRepository: UserRepository,
     private val userWalletRepository: UserWalletRepository
 ) : OrderService {
 
@@ -75,11 +73,6 @@ class OrderServiceImpl(
         balance in the wallet, user can proceed with another order, else, throw InsufficientFundsException
     */
     override fun fundsAvailable(userId: Long, orderRequest: OrderRequestDto): Boolean {
-        val user = userRepository.findUserWithWallets(userId)
-        if (!user.isPresent) {
-            return false
-        }
-
         val balance = userWalletRepository.walletBalance(
             userId,
             if (orderRequest.side == SideDto.BUY) matchBuyCurrency(orderRequest.pair!!)
