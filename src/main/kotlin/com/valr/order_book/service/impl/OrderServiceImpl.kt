@@ -40,6 +40,7 @@ class OrderServiceImpl(
         A valid order request object must have
         Price <=0 and Quality <=0
         QuoteVolume >= 10
+        This is a pseudo-method, validation of an order can include complex business rules
     */
     override fun validOrder(orderRequest: OrderRequestDto): Boolean {
         return orderRequest.price!! > BigDecimal.ZERO || orderRequest.quantity!! > BigDecimal.ZERO ||
