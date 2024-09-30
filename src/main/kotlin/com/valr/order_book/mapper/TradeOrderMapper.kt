@@ -1,6 +1,7 @@
 package com.valr.order_book.mapper
 
 import com.valr.order_book.entity.TradeOrder
+import com.valr.order_book.entity.User
 import com.valr.order_book.entity.enums.Status
 import com.valr.order_book.model.OrderDto
 import com.valr.order_book.model.OrderRequestDto
@@ -46,7 +47,7 @@ abstract class TradeOrderMapper {
         )
     }
 
-    fun requestToInternal(request: OrderRequestDto): TradeOrder {
+    fun requestToInternal(user: User, request: OrderRequestDto): TradeOrder {
 
         if (request.side == null) {
             throw RuntimeException("side not set")
@@ -57,13 +58,15 @@ abstract class TradeOrderMapper {
         }
 
         val tradeOrder = TradeOrder(
+            sequenceId = null,
             id = UUID.randomUUID().toString(),
             takerSide = SideMapper.INSTANCE.dtoToInternal(request.side),
             quantity = request.quantity ?: 0.toBigDecimal(),
             price = request.price ?: 0.toBigDecimal(),
             quoteVolume = request.price?.times(request.quantity!!) ?: 0.toBigDecimal(),
             currencyPair = CurrencyPairMapper.INSTANCE.dtoToInternal(request.pair),
-            status = Status.PLACED
+            status = Status.PLACED,
+            user = user,
         )
 
         return tradeOrder

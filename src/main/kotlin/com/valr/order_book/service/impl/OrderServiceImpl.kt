@@ -3,12 +3,14 @@ package com.valr.order_book.service.impl
 import com.valr.order_book.entity.TradeOrder
 import com.valr.order_book.entity.enums.Currency
 import com.valr.order_book.entity.enums.TakerSide
+import com.valr.order_book.exception.AccessDeniedException
 import com.valr.order_book.exception.InsufficientFundsException
 import com.valr.order_book.exception.InvalidOrderException
 import com.valr.order_book.mapper.CurrencyPairMapper
 import com.valr.order_book.mapper.TradeOrderMapper
 import com.valr.order_book.model.*
 import com.valr.order_book.repository.OrderRepository
+import com.valr.order_book.repository.UserRepository
 import com.valr.order_book.repository.UserWalletRepository
 import com.valr.order_book.service.OrderService
 import org.springframework.stereotype.Service
@@ -20,7 +22,8 @@ import java.util.stream.Collectors
 @Service
 class OrderServiceImpl(
     private val orderRepository: OrderRepository,
-    private val userWalletRepository: UserWalletRepository
+    private val userWalletRepository: UserWalletRepository,
+    private val userRepository: UserRepository,
 ) : OrderService {
 
     // Sell orders (min-heap for lowest price)
@@ -104,8 +107,13 @@ class OrderServiceImpl(
             throw InsufficientFundsException("Insufficient balance.")
         }
 
-        // Step 3: process the order
-        val orderObj = TradeOrderMapper.INSTANCE.requestToInternal(orderRequest)
+        // Step 3: place an order
+        val user = userRepository.findById(userId)
+        if(user.isEmpty) {
+            throw AccessDeniedException("Invalid user.")
+        }
+
+        val orderObj = TradeOrderMapper.INSTANCE.requestToInternal(user.get(), orderRequest)
 
         // Record this order in a DB
         val newOrder = orderRepository.save(orderObj)
