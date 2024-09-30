@@ -99,7 +99,7 @@ class OrderServiceImpl(
             throw InvalidOrderException("Invalid order request.")
         }
 
-        // Step 2: Ensure the user has sufficient funds to place an order
+        // Step 2: Ensure the user has sufficient funds in a wallet to place an order
         if (!fundsAvailable(userId, orderRequest)) {
             throw InsufficientFundsException("Insufficient balance.")
         }
