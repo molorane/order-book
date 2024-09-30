@@ -78,20 +78,22 @@ class OrderServiceImpl(
             return false
         }
 
-        val volume = orderRequest.quantity?.multiply(orderRequest.price)
-
         val balance = userWalletRepository.walletBalance(
             userId,
-            if (orderRequest.side == SideDto.BUY) matchSellCurrency(orderRequest.pair!!) else matchSellCurrency(
-                orderRequest.pair!!
-            )
+            if (orderRequest.side == SideDto.BUY) matchBuyCurrency(orderRequest.pair!!)
+            else matchSellCurrency(orderRequest.pair!!)
         )
 
         if (balance.isEmpty) {
             return false
         }
 
-        return balance.get().getQuantityDifference() >= volume
+        val volume = orderRequest.quantity?.multiply(orderRequest.price)
+
+        return if (orderRequest.side == SideDto.BUY)
+            balance.get().getQuantityDifference() >= volume
+        else
+            orderRequest.quantity!! < balance.get().getQuantityDifference()
     }
 
     override fun placeOrder(userId: Long, orderRequest: OrderRequestDto): OrderResponseDto {

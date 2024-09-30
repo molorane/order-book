@@ -12,9 +12,9 @@ interface UserWalletRepository : JpaRepository<UserWallet, Long> {
     @Query(
         """
         SELECT    
-            SUM(CASE WHEN uw.flowType = 'IN' THEN uw.quantity ELSE 0 END) AS total_in,
-            SUM(CASE WHEN uw.flowType = 'OUT' THEN uw.quantity ELSE 0 END) AS total_out,
-            (SUM(CASE WHEN uw.flowType = 'IN' THEN uw.quantity ELSE 0 END) - SUM(CASE WHEN uw.flowType = 'OUT' THEN uw.quantity ELSE 0 END)) AS quantity_difference
+            SUM(CASE WHEN uw.flowType = 'IN' THEN uw.quantity ELSE 0 END) AS totalIn,
+            SUM(CASE WHEN uw.flowType = 'OUT' THEN uw.quantity ELSE 0 END) AS totalOut,
+            (SUM(CASE WHEN uw.flowType = 'IN' THEN uw.quantity ELSE 0 END) - SUM(CASE WHEN uw.flowType = 'OUT' THEN uw.quantity ELSE 0 END)) AS quantityDifference
         FROM UserWallet uw
         WHERE uw.user.id = :userId AND uw.currency = :currency
     """
