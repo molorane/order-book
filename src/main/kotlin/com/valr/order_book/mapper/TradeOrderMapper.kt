@@ -40,6 +40,7 @@ abstract class TradeOrderMapper {
             tradeOrder.quantity,
             tradeOrder.price,
             tradeOrder.quoteVolume,
+            tradeOrder.matchedQuantity,
             CurrencyPairMapper.INSTANCE.internalToDto(tradeOrder.currencyPair),
             StatusMapper.INSTANCE.internalToDto(tradeOrder.status),
             OrderTypeMapper.INSTANCE.internalToDto(tradeOrder.orderType),

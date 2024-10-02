@@ -1,8 +1,6 @@
 package com.valr.order_book.service.impl
 
-import com.valr.order_book.entity.TradeOrder
 import com.valr.order_book.entity.enums.Currency
-import com.valr.order_book.entity.enums.TakerSide
 import com.valr.order_book.exception.AccessDeniedException
 import com.valr.order_book.exception.InsufficientFundsException
 import com.valr.order_book.exception.InvalidOrderException
@@ -16,7 +14,6 @@ import com.valr.order_book.service.OrderService
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDateTime
-import java.util.*
 import java.util.stream.Collectors
 
 @Service
@@ -24,25 +21,14 @@ class OrderServiceImpl(
     private val orderRepository: OrderRepository,
     private val userWalletRepository: UserWalletRepository,
     private val userRepository: UserRepository,
+    private val orderQueueImpl: OrderQueueImpl
 ) : OrderService {
 
-    // Sell orders (min-heap for lowest price)
-    private val sellOrders: PriorityQueue<TradeOrder> =
-        PriorityQueue<TradeOrder> { a: TradeOrder, b: TradeOrder ->
-            a.price.compareTo(b.price)
-        }
-
-    // Buy orders (max-heap for highest price)
-    private val buyOrders: PriorityQueue<TradeOrder> =
-        PriorityQueue<TradeOrder> { a: TradeOrder, b: TradeOrder ->
-            b.price.compareTo(a.price)
-        }
-
-
     /*
-        A valid order request object must have
-        Price <=0 and Quality <=0
-        QuoteVolume >= 10
+        A valid order request object must have the following
+        - Price >=0
+        - Quantity >=0
+        - QuoteVolume >= 10
         This is a pseudo-method, validation of an order can include complex business rules
     */
     override fun validOrder(orderRequest: OrderRequestDto): Boolean {
@@ -69,12 +55,11 @@ class OrderServiceImpl(
 
     /*
         Validate that user has sufficient funds to place an order
-        I think here we first get user's wallets, then check the corresponding wallet
-        to validate that the user has sufficient funds to place an order
+        I think here we first get user's wallets, then check the corresponding wallet to validate that the user has sufficient funds to place an order
         Also, I thought of a situation where a user has placed an order, but it has not been executed
-        E.g User placed a SELL order of 100 XRPs, then places another SELL order of 20 XRPs while the previous order is still open
+        E.g. User placed a SELL order of 100 XRPs, then places another SELL order of 20 XRPs while the previous order is still open
         In this scenario, I thought I can sum the open orders and the order the user is trying to place, if the total quantity/volume is less than
-        balance in the wallet, user can proceed with another order, else, throw InsufficientFundsException
+        balance in the wallet, user can proceed with another order, else, throw InsufficientFundsException, but I did not cater for this scenario
     */
     override fun fundsAvailable(userId: Long, orderRequest: OrderRequestDto): Boolean {
         val balance = userWalletRepository.walletBalance(
@@ -87,10 +72,10 @@ class OrderServiceImpl(
             return false
         }
 
-        val volume = orderRequest.quantity?.multiply(orderRequest.price)
-
-        return if (orderRequest.side == SideDto.BUY)
+        return if (orderRequest.side == SideDto.BUY) {
+            val volume = orderRequest.quantity?.multiply(orderRequest.price)
             balance.get().getQuantityDifference() >= volume
+        }
         else
             orderRequest.quantity!! < balance.get().getQuantityDifference()
     }
@@ -119,15 +104,14 @@ class OrderServiceImpl(
         val newOrder = orderRepository.save(orderObj)
 
         // Put new order in a queue for processing
-        // My thinking is that, newOrder should most likely be sent to Cache(Redis, Memcached etc) for global access
-        // so that other running instances can access it and perhaps process it
-        // Running instances since they are running concurrently, there must be thread safety to ensure correct order processing
-        if (orderObj.takerSide == TakerSide.BUY) {
-            buyOrders.add(newOrder)
-        } else {
-            sellOrders.add(newOrder)
-        }
+        // My thinking is that, new orders should most likely be stored into a global access point, maybe a Cache(Redis, Memcached etc) but I am not sure
+        // so that other running instances can access them and process them
+        // I am also thinking each running instance most probably have multiple worker threads reading the global access point
+        // and since worker threads are running concurrently, they must access the queue in a thread safe way to ensure correct order processing
+        orderQueueImpl.addOrder(newOrder)
 
+        // This return statement just imply an order was placed successfully, not that it was processed
+        // it is the user's responsibility to check the status of the order
         return TradeOrderMapper.INSTANCE.internalToOrderResponse(newOrder)
     }
 

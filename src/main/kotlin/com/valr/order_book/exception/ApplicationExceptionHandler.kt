@@ -38,4 +38,11 @@ class ApplicationExceptionHandler {
     fun invalidOrderException(ex: InvalidOrderException, request: HttpServletRequest): ApiError {
         return ApiError(ex.message, request.requestURI, LocalDateTime.now())
     }
+
+    @ResponseBody
+    @ExceptionHandler(OrderProcessingException::class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    fun orderProcessingException(ex: OrderProcessingException, request: HttpServletRequest): ApiError {
+        return ApiError(ex.message, request.requestURI, LocalDateTime.now())
+    }
 }

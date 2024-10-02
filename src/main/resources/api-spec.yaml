@@ -212,6 +212,8 @@ components:
           type: number
         quoteVolume:
           type: number
+        matchedQuantity:
+          type: number
         pair:
           $ref: '#/components/schemas/CurrencyPair'
         status:
