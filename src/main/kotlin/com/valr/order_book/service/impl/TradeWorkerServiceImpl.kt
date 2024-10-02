@@ -26,7 +26,8 @@ class TradeWorkerServiceImpl(
         logger.info("Matched Trade -> SELL Order: $sellOrder with BUY Order: $buyOrder")
 
         val matchedPrice = sellOrder.price // lowest sell price
-        val matchedQuantity = sellOrder.quantity.min(buyOrder.quantity)
+
+        val matchedQuantity = sellOrder.quantity.minus(sellOrder.matchedQuantity).min(buyOrder.quantity)
 
         // create a new trade entry
         val newTrade = Trade(
@@ -40,20 +41,19 @@ class TradeWorkerServiceImpl(
         // save a new trade in a DB
         tradeRepository.save(newTrade)
 
-        // Determine if a sell order is FILLED
+        // update sell order
         updateTrade(sellOrder, matchedQuantity)
 
-        // Determine if a buy order is FILLED
+        // update buy order
         updateTrade(buyOrder, matchedQuantity)
     }
 
     private fun updateTrade(order: TradeOrder, matchedQuantity: BigDecimal) {
-
-        if (order.quantity > matchedQuantity) {
+        // Determine if an order is FILLED
+        if (order.quantity.minus(order.matchedQuantity) > matchedQuantity) {
             val newOrder = order.copy(
-                quantity = order.quantity.minus(matchedQuantity),
                 status = Status.PARTIALLY_FILLED,
-                matchedQuantity = matchedQuantity.plus(matchedQuantity)
+                matchedQuantity = order.matchedQuantity.plus(matchedQuantity)
             )
 
             // update order
@@ -64,7 +64,6 @@ class TradeWorkerServiceImpl(
             orderQueue.addOrder(newOrder)
         } else {
             val newOrder = order.copy(
-                quantity = order.quantity.minus(matchedQuantity),
                 status = Status.FILLED,
                 matchedQuantity = order.quantity
             )

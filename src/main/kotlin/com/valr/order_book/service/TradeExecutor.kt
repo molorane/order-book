@@ -12,20 +12,26 @@ class TradeExecutor(
     private val logger = LoggerFactory.getLogger(TradeExecutor::class.java)
 
     override fun run() {
+        logger.info("==Worker started==")
         while (true) {
             try {
                 val currencyPair = orderQueue.getSellCurrencyPair()
-                if(currencyPair != null) {
+                if (currencyPair != null) {
                     val matchedOrders = orderQueue.matchOrders(currencyPair)
                     if (matchedOrders != null) {
                         val (buyOrder, sellOrder) = matchedOrders
                         tradeWorkerService.executeTrade(buyOrder, sellOrder)
                     } else {
+                        logger.info("==Match pair $currencyPair ==")
                         Thread.sleep(500)
                     }
                 }
-            } catch (e: Exception) {
+                logger.info("==No orders==")
+                Thread.sleep(500)
+            } catch (e: InterruptedException) {
                 Thread.currentThread().interrupt()
+                logger.error("Worker interrupted", e)
+            } catch (e: Exception) {
                 logger.error("Worker interrupted", e)
             }
         }

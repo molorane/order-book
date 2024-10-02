@@ -75,8 +75,7 @@ class OrderServiceImpl(
         return if (orderRequest.side == SideDto.BUY) {
             val volume = orderRequest.quantity?.multiply(orderRequest.price)
             balance.get().getQuantityDifference() >= volume
-        }
-        else
+        } else
             orderRequest.quantity!! < balance.get().getQuantityDifference()
     }
 
@@ -94,7 +93,7 @@ class OrderServiceImpl(
 
         // Step 3: place an order
         val user = userRepository.findById(userId)
-        if(user.isEmpty) {
+        if (user.isEmpty) {
             throw AccessDeniedException("Invalid user.")
         }
 

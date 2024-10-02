@@ -9,7 +9,12 @@ import java.time.LocalDateTime
 data class TradeOrder(
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "trade_order_seq")
-    @SequenceGenerator(name = "trade_order_seq", sequenceName = "trade_order_seq", initialValue = 10, allocationSize = 1)
+    @SequenceGenerator(
+        name = "trade_order_seq",
+        sequenceName = "trade_order_seq",
+        initialValue = 10,
+        allocationSize = 1
+    )
     val sequenceId: Long? = null,
 
     var id: String? = null,

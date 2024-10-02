@@ -17,7 +17,7 @@ class TradeExecutorThreadPool(private val tradeExecutor: TradeExecutor) {
 
     @PostConstruct
     private fun startWorkerThreads() {
-        logger.info("Starting worker threads to process trade orders")
+        logger.info("============Starting worker threads to process trade orders============")
         executorService = Executors.newFixedThreadPool(2)
         repeat(2) {
             executorService.submit(tradeExecutor)
@@ -26,7 +26,7 @@ class TradeExecutorThreadPool(private val tradeExecutor: TradeExecutor) {
 
     @PreDestroy
     private fun stopWorkerThreads() {
-        logger.info("Shutting down executor service")
+        logger.info("============Shutting down executor service============")
         executorService.shutdownNow()
     }
 }

@@ -92,7 +92,7 @@ class OrderQueueImpl : OrderQueue {
     }
 
     // This method is to avoid code duplication for adding sell orders and buy orders into a map
-    private fun match(currencyPair: CurrencyPair): Pair<TradeOrder, TradeOrder> {
+    private fun match(currencyPair: CurrencyPair): Pair<TradeOrder, TradeOrder>? {
         val sellOrders: PriorityBlockingQueue<TradeOrder> = sellOrderMap[currencyPair]
             ?: throw OrderProcessingException("Currency $currencyPair does not have sell orders")
 
@@ -106,12 +106,20 @@ class OrderQueueImpl : OrderQueue {
                     buyOrders.remove(buyOrder)
                     sellOrders.remove(sellOrder)
 
+                    if (sellOrders.isEmpty()) {
+                        sellOrderMap.remove(currencyPair)
+                    }
+
+                    if (buyOrders.isEmpty()) {
+                        buyOrderMap.remove(currencyPair)
+                    }
+
                     return sellOrder to buyOrder
                 }
             }
         }
 
-        throw OrderProcessingException("No matching orders for $currencyPair found")
+        return null
     }
 
     /*
