@@ -36,7 +36,7 @@ class OrderServiceImpl(
                 (orderRequest.price.multiply(orderRequest.quantity) >= BigDecimal("10"))
     }
 
-    // This is a pseudo-method, this can be read from appropriate table of currencies from storage/API
+    // This is a pseudo-method, this can be read from appropriate table of currencies or through an API
     override fun matchBuyCurrency(currency: CurrencyPairDto): Currency {
         return when (currency) {
             CurrencyPairDto.XRPZAR, CurrencyPairDto.BTCZAR -> Currency.ZAR
@@ -44,7 +44,7 @@ class OrderServiceImpl(
         }
     }
 
-    // This is a pseudo-method, this can be read from appropriate table of currencies from storage/API
+    // This is a pseudo-method, this can be read from appropriate table of currencies or through an API
     override fun matchSellCurrency(currency: CurrencyPairDto): Currency {
         return when (currency) {
             CurrencyPairDto.XRPZAR -> Currency.XRP
@@ -56,10 +56,12 @@ class OrderServiceImpl(
     /*
         Validate that user has sufficient funds to place an order
         I think here we first get user's wallets, then check the corresponding wallet to validate that the user has sufficient funds to place an order
-        Also, I thought of a situation where a user has placed an order, but it has not been executed
+        Also, I thought of a situation where a user has already placed an order for the currency pair, but it has not been executed
         E.g. User placed a SELL order of 100 XRPs, then places another SELL order of 20 XRPs while the previous order is still open
-        In this scenario, I thought I can sum the open orders and the order the user is trying to place, if the total quantity/volume is less than
-        balance in the wallet, user can proceed with another order, else, throw InsufficientFundsException, but I did not cater for this scenario
+        In this scenario, I thought I should sum the open orders and the order the user is currently placing, if the total quantity is less than
+        balance quantity in the wallet, user can proceed with placing the new order, else, throw InsufficientFundsException, but I did not cater for this scenario
+
+        1. If user is placing a BUY order, we have to compute quote volume of current order, then ensure volume is not greater than
     */
     override fun fundsAvailable(userId: Long, orderRequest: OrderRequestDto): Boolean {
         val balance = userWalletRepository.walletBalance(
@@ -76,7 +78,7 @@ class OrderServiceImpl(
             val volume = orderRequest.quantity?.multiply(orderRequest.price)
             balance.get().getQuantityDifference() >= volume
         } else
-            orderRequest.quantity!! < balance.get().getQuantityDifference()
+            balance.get().getQuantityDifference() >= orderRequest.quantity!!
     }
 
     override fun placeOrder(userId: Long, orderRequest: OrderRequestDto): OrderResponseDto {
@@ -103,14 +105,14 @@ class OrderServiceImpl(
         val newOrder = orderRepository.save(orderObj)
 
         // Put new order in a queue for processing
-        // My thinking is that, new orders should most likely be stored into a global access point, maybe a Cache(Redis, Memcached etc) but I am not sure
-        // so that other running instances can access them and process them
-        // I am also thinking each running instance most probably have multiple worker threads reading the global access point
+        // My thinking is that, new orders should most likely be stored into a global queue
+        // so that other running instances can access the queue for processing
+        // I am also thinking each running instance most probably have multiple worker threads reading the queue
         // and since worker threads are running concurrently, they must access the queue in a thread safe way to ensure correct order processing
         orderQueueImpl.addOrder(newOrder)
 
-        // This return statement just imply an order was placed successfully, not that it was processed
-        // it is the user's responsibility to check the status of the order
+        // This return statement implies that an order was successfully placed, not that it was processed
+        // It is the user's responsibility to check the status of the order
         return TradeOrderMapper.INSTANCE.internalToOrderResponse(newOrder)
     }
 

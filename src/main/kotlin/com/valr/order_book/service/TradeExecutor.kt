@@ -19,20 +19,21 @@ class TradeExecutor(
                 if (currencyPair != null) {
                     val matchedOrders = orderQueue.matchOrders(currencyPair)
                     if (matchedOrders != null) {
-                        val (buyOrder, sellOrder) = matchedOrders
-                        tradeWorkerService.executeTrade(buyOrder, sellOrder)
+                        val (sellOrder, buyOrder) = matchedOrders
+                        tradeWorkerService.executeTrade(sellOrder, buyOrder)
                     } else {
                         logger.info("==Match pair $currencyPair ==")
                         Thread.sleep(500)
                     }
-                }
-                logger.info("==No orders==")
+                } else {
+                logger.info("==No orders found==")
                 Thread.sleep(500)
+                    }
             } catch (e: InterruptedException) {
                 Thread.currentThread().interrupt()
                 logger.error("Worker interrupted", e)
             } catch (e: Exception) {
-                logger.error("Worker interrupted", e)
+                logger.error("Error occurred ", e)
             }
         }
     }
