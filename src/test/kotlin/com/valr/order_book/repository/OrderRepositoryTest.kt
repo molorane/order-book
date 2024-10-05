@@ -24,7 +24,7 @@ class OrderRepositoryTest @Autowired constructor(
     }
 
     @Test
-    fun `When orderBook with XRPZAR orders should contain 5 orders, 1 sell order and 4 buy orders`() {
+    fun `given orderBook with XRPZAR orders should contain 5 orders, 1 sell order and 4 buy orders`() {
         // Arrange
         val orderCount = 5
 
@@ -44,7 +44,7 @@ class OrderRepositoryTest @Autowired constructor(
     }
 
     @Test
-    fun `When orderBook with XRPZAR orders should have expected sell order`() {
+    fun `given orderBook with XRPZAR orders should have expected sell order`() {
         // Arrange
         val sellOrderCount = 2;
         val sellQuantity = BigDecimal("500.00000000");
@@ -62,7 +62,7 @@ class OrderRepositoryTest @Autowired constructor(
     }
 
     @Test
-    fun `When orderBook BTCZAR then return 0 Orders`() {
+    fun `given orderBook BTCZAR then return 0 Orders`() {
         assertTrue(
             orderRepository.orderBook(CurrencyPair.BTCZAR).isEmpty()
         )

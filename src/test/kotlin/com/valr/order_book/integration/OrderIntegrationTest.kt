@@ -59,7 +59,7 @@ class OrderIntegrationTest(
 
     @Test
     @Order(1)
-    fun `When orderBook with XRPZAR orders should contain 5 orders, 1 sell order and 4 buy orders`() {
+    fun `given orderBook with XRPZAR orders should contain 5 orders, 1 sell order and 4 buy orders`() {
         // Arrange
         val orderCount = 5
 
@@ -87,7 +87,7 @@ class OrderIntegrationTest(
 
     @Test
     @Order(2)
-    fun `When orderBook BTCZAR then return 0 Orders`() {
+    fun `given orderBook BTCZAR then return 0 Orders`() {
         // Act
         val response = restTemplate.getForEntity("/v1/BTCZAR/orderbook", OrderBookDto::class.java)
 

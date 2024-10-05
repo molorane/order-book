@@ -5,7 +5,6 @@ import com.valr.order_book.entity.enums.CurrencyPair
 import com.valr.order_book.entity.enums.TakerSide
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
@@ -21,12 +20,8 @@ class TradeRepositoryTest @Autowired constructor(
     val tradeRepository: TradeRepository,
 ) {
 
-    @BeforeEach
-    fun setUp() {
-    }
-
     @Test
-    fun `When tradeHistory with XRPZAR then return only 1 page with 4 trades`() {
+    fun `given tradeHistory with XRPZAR then return only 1 page with 4 trades`() {
         // Arrange
         val pageable = PageRequest.of(0, 10)
         val totalPages = 1
@@ -44,7 +39,7 @@ class TradeRepositoryTest @Autowired constructor(
     }
 
     @Test
-    fun `When tradeHistory with XRPZAR should contain 2 sell trades and 2 buy trades`() {
+    fun `given tradeHistory with XRPZAR should contain 2 sell trades and 2 buy trades`() {
         // Arrange
         val pageable = PageRequest.of(0, 20)
 
@@ -66,7 +61,7 @@ class TradeRepositoryTest @Autowired constructor(
     }
 
     @Test
-    fun `When tradeHistory with XRPZAR should have expected sell trades`() {
+    fun `given tradeHistory with XRPZAR should have expected sell trades`() {
         // Arrange
         val pageable = PageRequest.of(0, 20)
         val id = "1e055fbc-782b-11ef-90ef-13862c70d2e0";
@@ -91,7 +86,7 @@ class TradeRepositoryTest @Autowired constructor(
     }
 
     @Test
-    fun `When tradeHistory BTCZAR then return 0 trades`() {
+    fun `given tradeHistory BTCZAR then return 0 trades`() {
         // Arrange
         val pageable = PageRequest.of(0, 20)
 
