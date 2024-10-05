@@ -3,8 +3,6 @@ package com.valr.order_book.integration
 
 import com.valr.order_book.exception.ApiError
 import com.valr.order_book.model.*
-import com.valr.order_book.repository.OrderRepository
-import com.valr.order_book.repository.TradeRepository
 import com.valr.order_book.service.OrderQueue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.*
@@ -27,9 +25,7 @@ import java.math.BigDecimal
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class OrderIntegrationTest(
     @Autowired val restTemplate: TestRestTemplate,
-    @Autowired val orderQueue: OrderQueue,
-    @Autowired val tradeRepository: TradeRepository,
-    @Autowired val orderRepository: OrderRepository
+    @Autowired val orderQueue: OrderQueue
 ) {
     private val USER_ID_KEY = "X-VALR-USER-ID";
 
