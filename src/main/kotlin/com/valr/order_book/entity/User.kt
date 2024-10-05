@@ -12,7 +12,7 @@ data class User(
     val firstName: String,
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    val wallets: List<UserWallet>
+    val wallets: List<UserWallet> = mutableListOf()
 ) {
     override fun toString(): String {
         return "User(id=$id, firstName=$firstName)"

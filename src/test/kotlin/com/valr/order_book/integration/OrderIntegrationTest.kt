@@ -1,24 +1,64 @@
 package com.valr.order_book.integration
 
 
-import com.valr.order_book.model.OrderBookDto
-import com.valr.order_book.model.SideDto
+import com.valr.order_book.exception.ApiError
+import com.valr.order_book.model.*
+import com.valr.order_book.repository.OrderRepository
+import com.valr.order_book.repository.TradeRepository
+import com.valr.order_book.service.OrderQueue
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.test.context.ActiveProfiles
+import java.math.BigDecimal
 
 
+@ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class OrderIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
+class OrderIntegrationTest(
+    @Autowired val restTemplate: TestRestTemplate,
+    @Autowired val orderQueue: OrderQueue,
+    @Autowired val tradeRepository: TradeRepository,
+    @Autowired val orderRepository: OrderRepository
+) {
+    private val USER_ID_KEY = "X-VALR-USER-ID";
+
+    private val sellRequest = OrderRequestDto(
+        side = SideDto.SELL,
+        quantity = BigDecimal("3000.00000000"),
+        price = BigDecimal("10.45000000"),
+        pair = CurrencyPairDto.XRPZAR,
+        customerOrderId = "123",
+    )
+
+    private val invalidSellRequest = OrderRequestDto(
+        side = SideDto.SELL,
+        quantity = BigDecimal("0.00000000"),
+        price = BigDecimal("0.000000"),
+        pair = CurrencyPairDto.XRPZAR,
+        customerOrderId = "123",
+    )
+
+    private val buyRequest = OrderRequestDto(
+        side = SideDto.BUY,
+        quantity = BigDecimal("10.00000000"),
+        price = BigDecimal("10.45000000"),
+        pair = CurrencyPairDto.XRPZAR,
+        customerOrderId = "123",
+    )
 
     @Test
+    @Order(1)
     fun `When orderBook with XRPZAR orders should contain 5 orders, 1 sell order and 4 buy orders`() {
         // Arrange
         val orderCount = 5
@@ -45,8 +85,8 @@ class OrderIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
         assertThat(orderBook?.asks?.count()?.plus(orderBook.bids?.count()!!)).isEqualTo(orderCount)
     }
 
-
     @Test
+    @Order(2)
     fun `When orderBook BTCZAR then return 0 Orders`() {
         // Act
         val response = restTemplate.getForEntity("/v1/BTCZAR/orderbook", OrderBookDto::class.java)
@@ -58,17 +98,126 @@ class OrderIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
         assertThat(orderBook?.asks?.count()?.plus(orderBook.bids?.count()!!)).isEqualTo(0)
     }
 
-    companion object {
-        @JvmStatic
-        @BeforeAll
-        fun setup(): Unit {
-            println(">> Setup")
+    @Test
+    @Order(3)
+    fun `given insufficient funds when placeOrder then should return ApiError`() {
+        // Arrange
+        val headers = HttpHeaders().apply {
+            add(USER_ID_KEY, "2024")
+            add("Content-Type", "application/json")
+        }
+        val reqBodyWithHeaders: HttpEntity<OrderRequestDto> = HttpEntity(sellRequest, headers)
+
+        // Act
+        val response = restTemplate.postForEntity("/v1/orders/limit", reqBodyWithHeaders, ApiError::class.java)
+
+        // Assert
+        val body = response.body
+        assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        assertTrue(response.hasBody())
+        assertEquals("Insufficient balance.", body?.message)
+    }
+
+    @Test
+    @Order(4)
+    fun `given invalid request when placeOrder then should return ApiError`() {
+        // Arrange
+        val headers = HttpHeaders().apply {
+            add(USER_ID_KEY, "2024")
+            add("Content-Type", "application/json")
+        }
+        val reqBodyWithHeaders: HttpEntity<OrderRequestDto> = HttpEntity(invalidSellRequest, headers)
+
+        // Act
+        val response = restTemplate.postForEntity("/v1/orders/limit", reqBodyWithHeaders, ApiError::class.java)
+
+        // Assert
+        val body = response.body
+        assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        assertTrue(response.hasBody())
+        assertEquals("Invalid order request.", body?.message)
+    }
+
+    @Test
+    @Order(5)
+    fun `given unsupported currency pair when placeOrder then should return ApiError`() {
+        // Arrange
+        val invalidSellRequest = OrderRequestDto(
+            side = SideDto.SELL,
+            quantity = BigDecimal("10.00000000"),
+            price = BigDecimal("10.000000"),
+            pair = CurrencyPairDto.SOLZAR,
+            customerOrderId = "123",
+        )
+        val headers = HttpHeaders().apply {
+            add(USER_ID_KEY, "2024")
+            add("Content-Type", "application/json")
         }
 
-        @JvmStatic
-        @AfterAll
-        fun teardown(): Unit {
-            println(">> Tear down")
+        val reqBodyWithHeaders: HttpEntity<OrderRequestDto> = HttpEntity(invalidSellRequest, headers)
+
+        // Act
+        val response = restTemplate.postForEntity("/v1/orders/limit", reqBodyWithHeaders, ApiError::class.java)
+
+        // Assert
+        val body = response.body
+        assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        assertTrue(response.hasBody())
+        assertEquals("Invalid currency pair.", body?.message)
+    }
+
+    @Test
+    @Order(6)
+    fun `given valid request when placeOrder then should place an order`() {
+        // Arrange
+        val request = OrderRequestDto(
+            side = SideDto.SELL,
+            quantity = BigDecimal("105.00000000"),
+            price = BigDecimal("10.450000"),
+            pair = CurrencyPairDto.XRPZAR,
+            customerOrderId = "123",
+        )
+
+        val headers = HttpHeaders().apply {
+            add(USER_ID_KEY, "2024")
+            add("Content-Type", "application/json")
         }
+
+        val reqBodyWithHeaders: HttpEntity<OrderRequestDto> = HttpEntity(request, headers)
+
+        val orderResponse = OrderResponseDto(
+            sequenceId = 1,
+            id = "id",
+            side = SideDto.SELL,
+            quantity = BigDecimal("105.00000000"),
+            price = BigDecimal("10.450000"),
+            quoteVolume = BigDecimal("1097.25000000000000"),
+            matchedQuantity = BigDecimal("0"),
+            pair = CurrencyPairDto.XRPZAR,
+            status = StatusDto.PLACED,
+            orderType = OrderTypeDto.LIMIT_ORDER,
+            postOnly = false,
+            customerOrderId = null,
+            timeInForce = TimeInForceDto.GTC,
+            allowMargin = false,
+            reduceOnly = false
+        )
+
+        // Act
+        val response = restTemplate.postForEntity("/v1/orders/limit", reqBodyWithHeaders, OrderResponseDto::class.java)
+
+        // Assert
+        val body = response.body
+        assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+        assertTrue(response.hasBody())
+
+        assertThat(body)
+            .usingRecursiveComparison()
+            .ignoringFields("id")
+            .ignoringFields("sequenceId")
+            .ignoringFields("tradedAt")
+            .isEqualTo(orderResponse)
+
+        assertThat(orderQueue.getSellOrderQueue().size).isEqualTo(1)
     }
 }

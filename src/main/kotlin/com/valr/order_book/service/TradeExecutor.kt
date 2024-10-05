@@ -22,13 +22,11 @@ class TradeExecutor(
                         val (sellOrder, buyOrder) = matchedOrders
                         tradeWorkerService.executeTrade(sellOrder, buyOrder)
                     } else {
-                        logger.info("==Match pair $currencyPair ==")
                         Thread.sleep(500)
                     }
                 } else {
-                logger.info("==No orders found==")
-                Thread.sleep(500)
-                    }
+                    Thread.sleep(500)
+                }
             } catch (e: InterruptedException) {
                 Thread.currentThread().interrupt()
                 logger.error("Worker interrupted", e)

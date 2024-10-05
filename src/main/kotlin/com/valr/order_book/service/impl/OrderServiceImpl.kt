@@ -10,6 +10,7 @@ import com.valr.order_book.model.*
 import com.valr.order_book.repository.OrderRepository
 import com.valr.order_book.repository.UserRepository
 import com.valr.order_book.repository.UserWalletRepository
+import com.valr.order_book.service.OrderQueue
 import com.valr.order_book.service.OrderService
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -21,7 +22,7 @@ class OrderServiceImpl(
     private val orderRepository: OrderRepository,
     private val userWalletRepository: UserWalletRepository,
     private val userRepository: UserRepository,
-    private val orderQueueImpl: OrderQueueImpl
+    private val orderQueue: OrderQueue
 ) : OrderService {
 
     /*
@@ -49,7 +50,7 @@ class OrderServiceImpl(
         return when (currency) {
             CurrencyPairDto.XRPZAR -> Currency.XRP
             CurrencyPairDto.BTCZAR -> Currency.BTC
-            else -> throw InvalidOrderException("Invalid currency pair")
+            else -> throw InvalidOrderException("Invalid currency pair.")
         }
     }
 
@@ -109,7 +110,7 @@ class OrderServiceImpl(
         // so that other running instances can access the queue for processing
         // I am also thinking each running instance most probably have multiple worker threads reading the queue
         // and since worker threads are running concurrently, they must access the queue in a thread safe way to ensure correct order processing
-        orderQueueImpl.addOrder(newOrder)
+        orderQueue.addOrder(newOrder)
 
         // This return statement implies that an order was successfully placed, not that it was processed
         // It is the user's responsibility to check the status of the order

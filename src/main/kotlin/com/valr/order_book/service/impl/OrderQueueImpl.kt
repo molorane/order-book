@@ -146,5 +146,15 @@ class OrderQueueImpl : OrderQueue {
             // 2. If we have no orders at all
             null
         }
+
+
+    }
+
+    override fun getSellOrderQueue(): MutableMap<CurrencyPair, PriorityBlockingQueue<TradeOrder>> {
+        return sellOrderMap
+    }
+
+    override fun getBuyOrderQueue(): MutableMap<CurrencyPair, PriorityBlockingQueue<TradeOrder>> {
+        return buyOrderMap
     }
 }

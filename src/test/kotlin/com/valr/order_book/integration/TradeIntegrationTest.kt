@@ -5,10 +5,8 @@ import com.valr.order_book.model.CurrencyPairDto
 import com.valr.order_book.model.SideDto
 import com.valr.order_book.model.TradeDto
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -20,9 +18,8 @@ import java.time.LocalDateTime
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class TradeIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
 
-
     @Test
-    fun `When tradeHistory with XRPZAR then return 4 trades`() {
+    fun `giventradeHistory with XRPZAR then return 4 trades`() {
         // Arrange
 
         // Act
@@ -41,7 +38,7 @@ class TradeIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
     }
 
     @Test
-    fun `When tradeHistory with XRPZAR should contain 2 sell trades and 2 buy trades`() {
+    fun `giventradeHistory with XRPZAR should contain 2 sell trades and 2 buy trades`() {
         // Arrange
 
         // Act
@@ -60,7 +57,7 @@ class TradeIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
     }
 
     @Test
-    fun `When tradeHistory with XRPZAR then return 4 XRPZAR and contain expected trade`() {
+    fun `giventradeHistory with XRPZAR then return 4 XRPZAR and contain expected trade`() {
         // Arrange
         val expected = TradeDto(
             BigDecimal("10.45000000"),
@@ -95,7 +92,7 @@ class TradeIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
     }
 
     @Test
-    fun `When tradeHistory BTCZAR then return 0 trades`() {
+    fun `giventradeHistory BTCZAR then return 0 trades`() {
         // Arrange
         val zeroTrades = 0
 
@@ -105,19 +102,5 @@ class TradeIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
         val trades = response.body
 
         assertThat(trades?.size).isEqualTo(zeroTrades)
-    }
-
-    companion object {
-        @JvmStatic
-        @BeforeAll
-        fun setup(): Unit {
-            println(">> Setup")
-        }
-
-        @JvmStatic
-        @AfterAll
-        fun teardown(): Unit {
-            println(">> Tear down")
-        }
     }
 }

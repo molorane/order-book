@@ -52,4 +52,6 @@ interface TradeRepository : JpaRepository<Trade, Long>, JpaSpecificationExecutor
         toDate: LocalDateTime? = null,
         pageable: Pageable
     ): Page<TradeHistoryProjection>
+
+    fun findBySellerSequenceIdAndBuyerSequenceId(seller: Long, buyer: Long): Trade
 }
