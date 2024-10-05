@@ -84,4 +84,50 @@ class OrderQueueTest(
             .isEqualTo(expectedSellOrder)
     }
 
+    @Test
+    fun `given no matchOrder then sell order queue must contain 2 order and buy order queue 1`() {
+        // Arrange
+        val mothusi = User(
+            id = 2024L,
+            firstName = "Mothusi"
+        )
+
+        val michael = User(
+            id = 2022L,
+            firstName = "Mothusi"
+        )
+
+        val sellOrder = TradeOrder(
+            sequenceId = 1L,
+            id = "id1",
+            user = mothusi,
+            takerSide = TakerSide.SELL,
+            quantity = BigDecimal("105.00000000"),
+            price = BigDecimal("10.45000000"),
+            currencyPair = CurrencyPair.XRPZAR,
+            customerOrderId = "123",
+        )
+
+        val buyOrder = TradeOrder(
+            sequenceId = 1L,
+            id = "id2",
+            user = michael,
+            takerSide = TakerSide.BUY,
+            quantity = BigDecimal("80.00000000"),
+            price = BigDecimal("9.45000000"),
+            currencyPair = CurrencyPair.XRPZAR,
+            customerOrderId = "1234",
+        )
+
+        // Act
+        orderQueue.addOrder(sellOrder)
+        orderQueue.addOrder(buyOrder)
+
+        // Delay to allow a trade to be executed
+        Thread.sleep(500)
+
+        // Assert
+        assertThat(orderQueue.getSellOrderQueue().size).isEqualTo(1)
+        assertThat(orderQueue.getBuyOrderQueue().size).isEqualTo(1)
+    }
 }
