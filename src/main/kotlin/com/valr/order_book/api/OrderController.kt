@@ -20,7 +20,6 @@ class OrderController(
 ) : OrderApiDelegate {
 
     override fun placeOrder(orderRequestDto: OrderRequestDto): ResponseEntity<OrderResponseDto> {
-        /// Get the HttpServletRequest
         val userIdHeader: String = httpServletRequest.getHeader("X-VALR-USER-ID")
             ?: throw AccessDeniedException("User ID is missing")
 
