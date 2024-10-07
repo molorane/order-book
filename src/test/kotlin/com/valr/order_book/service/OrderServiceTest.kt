@@ -13,6 +13,8 @@ import com.valr.order_book.repository.UserRepository
 import com.valr.order_book.repository.UserWalletRepository
 import com.valr.order_book.repository.projection.WalletBalance
 import com.valr.order_book.service.impl.OrderServiceImpl
+import com.valr.order_book.util.matchBuyCurrency
+import com.valr.order_book.util.matchSellCurrency
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -75,8 +77,8 @@ class OrderServiceTest {
         // Arrange
 
         // Act
-        val btcZAR = orderService.matchBuyCurrency(CurrencyPairDto.BTCZAR)
-        val xrpZAR = orderService.matchBuyCurrency(CurrencyPairDto.XRPZAR)
+        val btcZAR = matchBuyCurrency(CurrencyPairDto.BTCZAR)
+        val xrpZAR = matchBuyCurrency(CurrencyPairDto.XRPZAR)
 
         // Assert
         assertThat(btcZAR).isEqualTo(Currency.ZAR)
@@ -89,7 +91,7 @@ class OrderServiceTest {
 
         // Act
         val exception = assertThrows<InvalidOrderException> {
-            orderService.matchBuyCurrency(CurrencyPairDto.SHIBZAR)
+            matchBuyCurrency(CurrencyPairDto.SHIBZAR)
         }
 
         // Assert
@@ -101,8 +103,8 @@ class OrderServiceTest {
         // Arrange
 
         // Act
-        val btcZAR = orderService.matchSellCurrency(CurrencyPairDto.BTCZAR)
-        val xrpZAR = orderService.matchSellCurrency(CurrencyPairDto.XRPZAR)
+        val btcZAR = matchSellCurrency(CurrencyPairDto.BTCZAR)
+        val xrpZAR = matchSellCurrency(CurrencyPairDto.XRPZAR)
 
         // Assert
         assertThat(btcZAR).isEqualTo(Currency.BTC)
@@ -115,7 +117,7 @@ class OrderServiceTest {
 
         // Act
         val exception = assertThrows<InvalidOrderException> {
-            orderService.matchSellCurrency(CurrencyPairDto.SHIBZAR)
+            matchSellCurrency(CurrencyPairDto.SHIBZAR)
         }
 
         // Assert
@@ -123,7 +125,7 @@ class OrderServiceTest {
     }
 
     @Test
-    fun `given fundsAvailable with valid userId and request then should return true`() {
+    fun `given fundsAvailable with valid userId and valid request then should return true`() {
         // Arrange
         val walletBalance = mock(WalletBalance::class.java)
         lenient().`when`(walletBalance.getTotalIn()).thenReturn(BigDecimal("350.00000000"))
@@ -142,7 +144,7 @@ class OrderServiceTest {
     }
 
     @Test
-    fun `given fundsAvailable with valid userId and sell request then should return false`() {
+    fun `given fundsAvailable with valid userId and valid sell request then should return false`() {
         // Arrange
         val walletBalance = mock(WalletBalance::class.java)
         lenient().`when`(walletBalance.getTotalIn()).thenReturn(BigDecimal("350.00000000"))

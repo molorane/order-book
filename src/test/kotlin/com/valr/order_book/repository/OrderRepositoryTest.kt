@@ -5,7 +5,6 @@ import com.valr.order_book.entity.enums.CurrencyPair
 import com.valr.order_book.entity.enums.TakerSide
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
@@ -18,10 +17,6 @@ import java.math.BigDecimal
 class OrderRepositoryTest @Autowired constructor(
     val orderRepository: OrderRepository,
 ) {
-
-    @BeforeEach
-    fun setUp() {
-    }
 
     @Test
     fun `given orderBook with XRPZAR orders should contain 5 orders, 1 sell order and 4 buy orders`() {

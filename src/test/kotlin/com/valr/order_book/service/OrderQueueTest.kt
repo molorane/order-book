@@ -5,33 +5,41 @@ import com.valr.order_book.entity.User
 import com.valr.order_book.entity.enums.CurrencyPair
 import com.valr.order_book.entity.enums.Status
 import com.valr.order_book.entity.enums.TakerSide
+import com.valr.order_book.repository.OrderRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
+import org.springframework.test.context.ActiveProfiles
 import java.math.BigDecimal
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
+
+@ActiveProfiles("test")
 @SpringBootTest
 class OrderQueueTest(
-    @Autowired val orderQueue: OrderQueue
+    @Autowired val orderQueue: OrderQueue,
+    @Autowired var orderRepository: OrderRepository
 ) {
 
-    @Test
-    fun `given matchOrder then sell order queue must contain 1 order and buy order queue empty`() {
-        // Arrange
-        val mothusi = User(
-            id = 2024L,
-            firstName = "Mothusi"
-        )
+    val mothusi = User(
+        id = 2024L,
+        firstName = "Mothusi"
+    )
 
-        val michael = User(
-            id = 2022L,
-            firstName = "Mothusi"
-        )
+    val michael = User(
+        id = 2022L,
+        firstName = "Mothusi"
+    )
+
+    @Test
+    fun `given matchOrder then sell order queue must contain 1 order and buy order queue must be empty`() {
+        // Arrange
+        val latch = CountDownLatch(1)
 
         val sellOrder = TradeOrder(
-            sequenceId = 1L,
             id = "id1",
             user = mothusi,
             takerSide = TakerSide.SELL,
@@ -42,7 +50,6 @@ class OrderQueueTest(
         )
 
         val buyOrder = TradeOrder(
-            sequenceId = 1L,
             id = "id2",
             user = michael,
             takerSide = TakerSide.BUY,
@@ -52,8 +59,10 @@ class OrderQueueTest(
             customerOrderId = "1234",
         )
 
+        val newSellOrder = orderRepository.save(sellOrder)
+        val newBuyOrder = orderRepository.save(buyOrder)
+
         val expectedSellOrder = TradeOrder(
-            sequenceId = 1L,
             id = "id1",
             user = mothusi,
             takerSide = TakerSide.SELL,
@@ -66,11 +75,11 @@ class OrderQueueTest(
         )
 
         // Act
-        orderQueue.addOrder(sellOrder)
-        orderQueue.addOrder(buyOrder)
+        orderQueue.addOrder(newSellOrder)
+        orderQueue.addOrder(newBuyOrder)
 
         // Delay to allow a trade to be executed
-        Thread.sleep(500)
+        val orderProcessed = latch.await(3, TimeUnit.SECONDS)
 
         // Assert
         assertThat(orderQueue.getSellOrderQueue().size).isEqualTo(1)
@@ -87,20 +96,12 @@ class OrderQueueTest(
 
     @Test
     @DirtiesContext
-    fun `given no matchOrder then sell order queue must contain 2 order and buy order queue 1`() {
+    fun `given no matchOrder then sell order queue must contain 1 order and buy order queue 1`() {
         // Arrange
-        val mothusi = User(
-            id = 2024L,
-            firstName = "Mothusi"
-        )
-
-        val michael = User(
-            id = 2022L,
-            firstName = "Mothusi"
-        )
+        val latch = CountDownLatch(1)
 
         val sellOrder = TradeOrder(
-            sequenceId = 1L,
+            sequenceId = 11L,
             id = "id1",
             user = mothusi,
             takerSide = TakerSide.SELL,
@@ -111,7 +112,7 @@ class OrderQueueTest(
         )
 
         val buyOrder = TradeOrder(
-            sequenceId = 1L,
+            sequenceId = 12L,
             id = "id2",
             user = michael,
             takerSide = TakerSide.BUY,
@@ -126,7 +127,7 @@ class OrderQueueTest(
         orderQueue.addOrder(buyOrder)
 
         // Delay to allow a trade to be executed
-        Thread.sleep(500)
+        val orderProcessed = latch.await(3, TimeUnit.SECONDS)
 
         // Assert
         assertThat(orderQueue.getSellOrderQueue().size).isEqualTo(1)

@@ -1,6 +1,5 @@
 package com.valr.order_book.service.impl
 
-import com.valr.order_book.entity.enums.Currency
 import com.valr.order_book.exception.AccessDeniedException
 import com.valr.order_book.exception.InsufficientFundsException
 import com.valr.order_book.exception.InvalidOrderException
@@ -12,6 +11,8 @@ import com.valr.order_book.repository.UserRepository
 import com.valr.order_book.repository.UserWalletRepository
 import com.valr.order_book.service.OrderQueue
 import com.valr.order_book.service.OrderService
+import com.valr.order_book.util.matchBuyCurrency
+import com.valr.order_book.util.matchSellCurrency
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -35,23 +36,6 @@ class OrderServiceImpl(
     override fun validOrder(orderRequest: OrderRequestDto): Boolean {
         return orderRequest.price!! > BigDecimal.ZERO || orderRequest.quantity!! > BigDecimal.ZERO ||
                 (orderRequest.price.multiply(orderRequest.quantity) >= BigDecimal("10"))
-    }
-
-    // This is a pseudo-method, this can be read from appropriate table of currencies or through an API
-    override fun matchBuyCurrency(currency: CurrencyPairDto): Currency {
-        return when (currency) {
-            CurrencyPairDto.XRPZAR, CurrencyPairDto.BTCZAR -> Currency.ZAR
-            else -> throw InvalidOrderException("Invalid currency pair")
-        }
-    }
-
-    // This is a pseudo-method, this can be read from appropriate table of currencies or through an API
-    override fun matchSellCurrency(currency: CurrencyPairDto): Currency {
-        return when (currency) {
-            CurrencyPairDto.XRPZAR -> Currency.XRP
-            CurrencyPairDto.BTCZAR -> Currency.BTC
-            else -> throw InvalidOrderException("Invalid currency pair.")
-        }
     }
 
     /*

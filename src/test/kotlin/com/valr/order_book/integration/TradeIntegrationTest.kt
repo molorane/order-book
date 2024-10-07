@@ -12,14 +12,16 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpStatus
+import org.springframework.test.context.ActiveProfiles
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
+@ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class TradeIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
 
     @Test
-    fun `giventradeHistory with XRPZAR then return 4 trades`() {
+    fun `given tradeHistory with XRPZAR then return 4 trades`() {
         // Arrange
 
         // Act
@@ -38,7 +40,7 @@ class TradeIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
     }
 
     @Test
-    fun `giventradeHistory with XRPZAR should contain 2 sell trades and 2 buy trades`() {
+    fun `given tradeHistory with XRPZAR should contain 2 sell trades and 2 buy trades`() {
         // Arrange
 
         // Act
@@ -57,7 +59,7 @@ class TradeIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
     }
 
     @Test
-    fun `giventradeHistory with XRPZAR then return 4 XRPZAR and contain expected trade`() {
+    fun `given tradeHistory with XRPZAR then return 4 XRPZAR and contain expected trade`() {
         // Arrange
         val expected = TradeDto(
             BigDecimal("10.45000000"),
@@ -92,7 +94,7 @@ class TradeIntegrationTest(@Autowired val restTemplate: TestRestTemplate) {
     }
 
     @Test
-    fun `giventradeHistory BTCZAR then return 0 trades`() {
+    fun `given tradeHistory BTCZAR then return 0 trades`() {
         // Arrange
         val zeroTrades = 0
 

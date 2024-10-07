@@ -13,7 +13,6 @@ import org.springframework.test.context.ActiveProfiles
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
-
 @DataJpaTest
 @ActiveProfiles("test")
 class TradeRepositoryTest @Autowired constructor(

@@ -46,7 +46,7 @@ class OrderQueueImpl : OrderQueue {
         orders: PriorityBlockingQueue<TradeOrder>?,
         comparator: Comparator<TradeOrder>
     ) {
-        // If orders is null, new sell currency pair should be created in a map
+        // If orders is null, new order currency pair should be created in a map
         if (orders == null) {
             synchronized(this) {
                 if (orderMap[newOrder.currencyPair] == null) {
@@ -56,7 +56,6 @@ class OrderQueueImpl : OrderQueue {
                 } else
                     orderMap[newOrder.currencyPair]?.put(newOrder)
             }
-
         } else {
             orders.put(newOrder)
         }
@@ -98,7 +97,11 @@ class OrderQueueImpl : OrderQueue {
 
         for (sellOrder in sellOrders) {
             for (buyOrder in buyOrders) {
-                if (buyOrder.price >= sellOrder.price) {
+
+                // Ensure the bid price is greater or equal to ask price
+                // Also ensure that we don't match orders belonging to the same person
+                // Because it does not make sense to be a seller and a buy
+                if (buyOrder.price >= sellOrder.price && (buyOrder.user?.id != sellOrder.user?.id)) {
                     // Remove the matched orders from the queues
                     buyOrders.remove(buyOrder)
                     sellOrders.remove(sellOrder)
@@ -115,7 +118,6 @@ class OrderQueueImpl : OrderQueue {
                 }
             }
         }
-
         return null
     }
 
@@ -146,8 +148,6 @@ class OrderQueueImpl : OrderQueue {
             // 2. If we have no orders at all
             null
         }
-
-
     }
 
     override fun getSellOrderQueue(): MutableMap<CurrencyPair, PriorityBlockingQueue<TradeOrder>> {
