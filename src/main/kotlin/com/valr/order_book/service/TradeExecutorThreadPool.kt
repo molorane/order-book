@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 // This class generate threads that execute trades
-
+// This only holds two worker threads enough for demonstration
 @Component
 class TradeExecutorThreadPool(private val tradeExecutor: TradeExecutor) {
 

@@ -29,6 +29,7 @@ class OrderQueueImpl : OrderQueue {
     val orderProcess: MutableMap<CurrencyPair, Boolean> = mutableMapOf()
     private val lock = ReentrantLock()
 
+    // Add new order to the queue for processing by worker threads
     override fun addOrder(newOrder: TradeOrder) {
         if (newOrder.takerSide == TakerSide.SELL) {
             val sellOrders = sellOrderMap[newOrder.currencyPair]
@@ -61,6 +62,7 @@ class OrderQueueImpl : OrderQueue {
         }
     }
 
+    // match orders in a thread safe way
     override fun matchOrders(currencyPair: CurrencyPair): Pair<TradeOrder, TradeOrder>? {
         // Use the lock to ensure that checking and updating the busy status is thread-safe
         lock.withLock {
