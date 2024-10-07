@@ -21,6 +21,8 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import java.math.BigDecimal
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -36,6 +38,7 @@ class OrderMatchingIntegrationTest(
     @Test
     fun `given matching sell and buy order then execute a trade`() {
         // Arrange
+        val latch = CountDownLatch(1)
         val sellRequest = OrderRequestDto(
             side = SideDto.SELL,
             quantity = BigDecimal("105.00000000"),
@@ -78,7 +81,7 @@ class OrderMatchingIntegrationTest(
         assertTrue(buyResponse.hasBody())
 
         // Delay to ensure, we give threads enough time to execute a trade for matched orders
-        Thread.sleep(500)
+        val orderProcessed = latch.await(3, TimeUnit.SECONDS)
 
         assertThat(orderQueue.getSellOrderQueue().size).isEqualTo(1)
         assertThat(orderQueue.getBuyOrderQueue().size).isEqualTo(0) // By this time, a trade must have been executed, therefore no buy order
