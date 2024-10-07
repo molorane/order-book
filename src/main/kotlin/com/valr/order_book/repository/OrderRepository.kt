@@ -24,6 +24,7 @@ interface OrderRepository : JpaRepository<TradeOrder, Long>, JpaSpecificationExe
         WHERE o.currencyPair = :currencyPair
         GROUP BY o.id, o.takerSide, o.orderType, o.quantity, o.price
         ORDER BY o.id
+        LIMIT 40
     """
     )
     fun orderBook(currencyPair: CurrencyPair): List<OrderBookProjection>
