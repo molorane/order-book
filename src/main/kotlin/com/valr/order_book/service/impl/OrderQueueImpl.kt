@@ -89,7 +89,7 @@ class OrderQueueImpl : OrderQueue {
         }
     }
 
-    // This method is to avoid code duplication for adding sell orders and buy orders into a map
+    // This method is to avoid code duplication for matching sell orders and buy orders
     private fun match(currencyPair: CurrencyPair): Pair<TradeOrder, TradeOrder>? {
         val sellOrders: PriorityBlockingQueue<TradeOrder> = sellOrderMap[currencyPair]
             ?: throw OrderProcessingException("Currency $currencyPair does not have sell orders")

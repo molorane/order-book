@@ -46,7 +46,7 @@ class OrderServiceImpl(
         In this scenario, I thought I should sum the open orders and the order the user is currently placing, if the total quantity is less than
         balance quantity in the wallet, user can proceed with placing the new order, else, throw InsufficientFundsException, but I did not cater for this scenario
 
-        1. If user is placing a BUY order, we have to compute quote volume of current order, then ensure volume is not greater than
+        1. If user is placing a BUY order, we have to compute quote volume of current order, then ensure volume is not greater than available funds quantity
     */
     override fun fundsAvailable(userId: Long, orderRequest: OrderRequestDto): Boolean {
         val balance = userWalletRepository.walletBalance(
