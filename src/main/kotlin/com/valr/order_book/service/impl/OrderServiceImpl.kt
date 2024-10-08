@@ -28,9 +28,9 @@ class OrderServiceImpl(
 
     /*
         A valid order request object must have the following
-        - Price >=0
-        - Quantity >=0
-        - QuoteVolume >= 10
+        - Price >0
+        - Quantity >0
+        - QuoteVolume >10
         This is a pseudo-method, validation of an order can include complex business rules
     */
     override fun validOrder(orderRequest: OrderRequestDto): Boolean {
