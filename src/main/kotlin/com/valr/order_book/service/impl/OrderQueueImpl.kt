@@ -89,7 +89,7 @@ class OrderQueueImpl : OrderQueue {
         }
     }
 
-    // This method is to avoid code duplication for matching sell orders and buy orders
+
     private fun match(currencyPair: CurrencyPair): Pair<TradeOrder, TradeOrder>? {
         val sellOrders: PriorityBlockingQueue<TradeOrder> = sellOrderMap[currencyPair]
             ?: throw OrderProcessingException("Currency $currencyPair does not have sell orders")
@@ -102,7 +102,7 @@ class OrderQueueImpl : OrderQueue {
 
                 // Ensure the bid price is greater or equal to ask price
                 // Also ensure that we don't match orders belonging to the same person
-                // Because it does not make sense to be a seller and a buy
+                // Because it does not make sense to be a seller and a buyer
                 if (buyOrder.price >= sellOrder.price && (buyOrder.user?.id != sellOrder.user?.id)) {
                     // Remove the matched orders from the queues
                     buyOrders.remove(buyOrder)
