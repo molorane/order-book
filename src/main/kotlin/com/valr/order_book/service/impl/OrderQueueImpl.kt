@@ -140,11 +140,11 @@ class OrderQueueImpl : OrderQueue {
         // Find the intersection of orders
         val matchingCurrencyPairs = sellOrderMap.keys.intersect(buyOrderMap.keys).toList()
 
-        // Check if there are matching orders in the queue
+        // Check if there are orders that can possibly match in the queue
         return if (matchingCurrencyPairs.isNotEmpty()) {
             matchingCurrencyPairs[Random.nextInt(matchingCurrencyPairs.size)]
         } else {
-            // This means there are no matching orders for a currency pair
+            // This means there are no orders that can possibly match for a currency pair
             // This will happen if
             // 1. We have sell orders and no buy orders or the vice versa
             // 2. If we have no orders at all
